@@ -1,1 +1,1 @@
-function [pMean, pVar, MSE] = prediction()
+function [pMean, pVar] = prediction(xtrain,xtest,ytrain,)

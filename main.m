@@ -17,7 +17,7 @@ options_gen = struct('freq_lb', 0, 'freq_ub', 0.5, ...
                  'fix_var', 0.01, 'sampling', 'fix' );
 
 [freq, var, Q] = generateGSM(options_gen); % the length of freq or var is Q we need
-K = kernelComponent(freq, var, xtrain);
+K = kernelComponent(freq, var, xtrain, xtrain);
 
 % Kernel matrix low rank approximation
 
