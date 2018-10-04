@@ -25,10 +25,10 @@ K = kernelComponent(freq, var, xtrain, xtrain);
 
 % Hyperpara Opt
 
-% ADMM ML
+% ADMM ML Opt
 options_ADMM = struct('rho', 2000, 'MAX_iter', 10000);
 
-% DCP
+% DCP Opt
 L = cell(1,Q);
 for kk =1:Q
 L{kk} = (cholcov(K{kk})).';
@@ -46,9 +46,10 @@ options_DCP = struct('verbose',1,'ev',false, ...
 
 
 % prediction (test phase)
-% [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,nv,freq,var,K);
-[pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
+[pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,nv,freq,var,K);
+% [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
 
+% plot phase
 figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
 plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
 

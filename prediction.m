@@ -1,25 +1,26 @@
-function [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq_grid,var_grid)
-%This function makes prediction about the test data and evaluate the
-%prediction by calculating mean square of error.
+function [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,nv,freq,var,K)
+%
+Q = length(freq);
+nTrain = length(xtrain);
+xtest = xtest(1:nTest);
 
-kernelFound = zeros(nTrain,nTrain);
-for k=1:Q
-    kernelFound = kernelFound + alpha(k)*(K{k});
-end
-invCovMat = pinv(kernelFound + nv*eye(nTrain));
+K_cross_set = kernelComponent(freq,var,xtest,xtrain);
+K_test_set = kernelComponent(freq,var,xtest,xtest);
 
-c_subKernel = kernelComponent(freq_grid,var_grid,xtest,xtrain);
-c_Kernel = zeros(nTest,nTrain);
-for k=1:Q
-    c_Kernel = c_Kernel + alpha(k)*(c_subKernel{k});
-end
-mean = c_Kernel * invCovMat * ytrain;
-var=zeros(nTest,1);
-s_alpha = sum(alpha);
-for i=1:nTest
-    kernel_row=c_Kernel(i,:);
-    var(i) = s_alpha + nv - kernel_row*invCovMat*(kernel_row.');
-end
-pMean = mean;
-pVar = var;
+    function K_sum = sumup_kernel(K, Q, alpha)
+        K_sum = 0;
+        for i = 1:Q
+            K_sum = K_sum + alpha(i)*K{i};
+        end
+    end
+
+% sumup sub-Kernels sets
+K_cross = sumup_kernel(K_cross_set, Q, alpha);
+K_test = sumup_kernel(K_test_set, Q, alpha);
+K_train = sumup_kernel(K, Q, alpha);
+% prediction phase
+K_inv = pinv(K_train + nv*eye(nTrain));
+pMean = K_cross * K_inv * ytrain;
+pVar = diag(K_test + nv*eye(nTest) - K_cross*K_inv*K_cross');
+
 end
