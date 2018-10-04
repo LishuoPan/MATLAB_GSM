@@ -29,7 +29,7 @@ options_ADMM = struct('rho', 2000, 'MAX_iter', 10000);
 
 % DCP
 Phi = eye(nTrain);
-iniAlpha = ini_Alpha(Q);
+iniAlpha = ini_Alpha('fix', 1, Q, ytrain, K);
 options_DCP = struct('verbose',1,'ev',false, ...
                  'nv',varEst, ...
                  'dimension_reduction',true, ...
@@ -39,7 +39,8 @@ options_DCP = struct('verbose',1,'ev',false, ...
 [alpha,nv,info] = mkrm_optimize(ytrain,Phi,K,options_DCP);
 
 
-% 
+% prediction (test phase)
+
 
 
 

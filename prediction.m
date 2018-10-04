@@ -1,0 +1,1 @@
+function [pMean, pVar, MSE] = prediction()
