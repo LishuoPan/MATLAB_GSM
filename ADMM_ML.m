@@ -30,7 +30,9 @@ for i = 2:Q
     K_tilde = K_tilde + alpha_k(i)*U{i};
 end
 
+
 % the first c_k put into the process
+
 c_k = 0;
 for i = 1:Q
         c_k = c_k + alpha_k(i)*U{i};
@@ -124,85 +126,4 @@ end
 
 
 
-
-
-%{    
-    % First S update method
-    %{
-    A = rho*c_k*c_k;
-    B = rank_one_M + L_k*c_k-rho*c_k;
-    C = eyeM;
-    
-    fun = @(S)S*A*S+B*S-C;
-    options = optimoptions('fsolve','Display','final-detailed','MaxFunEvals',1.e+10,'MaxIterations',10000);
-    S0 = S_k; % warm start
-    S_k = fsolve(fun,S0,options);
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %}
-    
-    % Second S update method
-    %{
-    B = rank_one_M + L_k*c_k-rho*c_k;
-    S_k = (1-rho)*pinv(B);
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %}
-    
-    
-    % Third S update method
-    %{
-    B = rank_one_M + L_k*c_k;
-    S_k = pinv(B);
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %}
-    
-    % Forth S update method
-    %{
-    S_k = (1+rho)*pinv(rank_one_M+L_k*c_k+rho*c_k);
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %}
-    
-    % Fifth S update method
-    %{
-    S_k = inv(rank_one_M+rho*c_k)*( (1+rho)*eyeM - L_k);
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %}
-    % inverse update
-    S_k = invToeplitz(c_k(1,:));
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    
-    % fast S update
-    CKCK = c_k*c_k;
-    fun = @(s)(rho*convertToeplitz(s')*CKCK+rank_one_M+L_k*c_k-rho*c_k)*s-e1;
-    options = optimoptions('fsolve','Display','final-detailed');
-    s0 = S_k(:,1);
-    s_k = fsolve(fun,s0,options);
-    S_k = convertToeplitz(s_k');
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %
-
-    % CVX for solving S
-    cvx_begin
-    variable S_k(d,d) semidefinite
-    minimize( (ytrain' * S_k * ytrain - log_det(S_k)+...
-        sum(sum( L_k.* (S_k*c_k-eyeM) ))+...
-        rho/2 * square_pos(norm(S_k*c_k-eyeM,'fro')) ) ) % this can be better expressed.
-    cvx_end
-    [~,PD] = chol(S_k);
-    disp(['if the S is PD(0 is true): ',int2str(PD)]);
-    %
-%%%%%%%%%%%%%%%%%  
-%    % A FAKE S UPDATE(This part is just for debuging)
-%     S_k = inv(rank_one_M+rho*c_k)*( (1+rho)*eyeM + L_k*L_k');
-%     [~,PD] = chol(S_k);
-%     disp(['if the S is PD(0 is true): ',int2str(PD)]);
-%     
-%%%%%%%%%%%%%%%%    
-%}  
 

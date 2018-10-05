@@ -27,6 +27,7 @@ K = kernelComponent(freq, var, xtrain, xtrain);
 
 % ADMM ML Opt
 options_ADMM = struct('rho', 2000, 'MAX_iter', 10000, 'nv', varEst);
+
 alpha = ADMM_ML(ytrain,K,options_ADMM);
 
 
