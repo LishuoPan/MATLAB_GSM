@@ -26,7 +26,8 @@ K = kernelComponent(freq, var, xtrain, xtrain);
 % Hyperpara Opt
 
 % ADMM ML Opt
-options_ADMM = struct('rho', 2000, 'MAX_iter', 10000, 'nv', varEst);
+options_ADMM = struct('rho', 2000, 'MAX_iter', 50, 'nv', varEst, ...
+                      'iniAlpha', 200*ones(Q,1));
 
 alpha = ADMM_ML(ytrain,K,options_ADMM);
 
@@ -50,7 +51,7 @@ options_DCP = struct('verbose',1,'ev',false, ...
 %}
 
 % prediction (test phase)
-[pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,nv,freq,var,K);
+[pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
 % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
 
 % plot phase
