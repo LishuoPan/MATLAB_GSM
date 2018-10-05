@@ -26,9 +26,12 @@ K = kernelComponent(freq, var, xtrain, xtrain);
 % Hyperpara Opt
 
 % ADMM ML Opt
-options_ADMM = struct('rho', 2000, 'MAX_iter', 10000);
+options_ADMM = struct('rho', 2000, 'MAX_iter', 10000, 'nv', varEst);
+alpha = ADMM_ML(ytrain,K,options_ADMM);
+
 
 % DCP Opt
+%{
 L = cell(1,Q);
 for kk =1:Q
 L{kk} = (cholcov(K{kk})).';
@@ -43,7 +46,7 @@ options_DCP = struct('verbose',1,'ev',false, ...
                  'c_alpha', iniAlpha,...
                  'maxiters', 30);
 [alpha,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
-
+%}
 
 % prediction (test phase)
 [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,nv,freq,var,K);

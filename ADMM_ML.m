@@ -1,4 +1,4 @@
-function alpha = ADMM_ML(ytrain,U,nv,rho,iter,LAMBDA,srch)
+function alpha = ADMM_ML(ytrain,U,options)
 
 Q = numel(U);
 d = length(ytrain);
@@ -35,19 +35,19 @@ c_k = 0;
 for i = 1:Q
         c_k = c_k + alpha_k(i)*U{i};
 end
-c_k = c_k + nv*eyeM;
+c_k = c_k + options.nv*eyeM;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % START ADMM ITERATION UPDATE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-disp(['The hyperparameter rho = ',sprintf('%0.20e',rho)]);
-disp(['The Lambda = ',sprintf('%0.10f',LAMBDA)]);
+disp(['The hyperparameter rho = ',sprintf('%0.20e',options.rho)]);
+% disp(['The Lambda = ',sprintf('%0.10f',LAMBDA)]);
 % eval(['num_survived_alpha',int2str(srch),'=' ,'[];']);
-survivor = [];
+% survivor = [];
 
 e1 = zeros(d,1);
 e1(1) = 1;
 %alpha_k = ones(Q,1);
-for i= 1:iter
+for i= 1:options.MAX_iter
     disp(['Iteration ',int2str(i),' is running...']);
     % a record of survivor in each interation
     
@@ -58,7 +58,7 @@ for i= 1:iter
     % S_k = invToeplitz(c_k(1,:));
     
     if i<=5
-        S_k = inv(rank_one_M+rho*c_k)*( (1+rho)*eyeM - L_k);
+        S_k = inv(rank_one_M+options.rho*c_k)*( (1+options.rho)*eyeM - L_k);
         [~,PD] = chol(S_k);
         disp(['if the S is PD(0 is true): ',int2str(PD)]);
     end
@@ -66,7 +66,7 @@ for i= 1:iter
     if i>5
         step = 1e-16;
         for ii=1:1000
-            gradient = rank_one_M - inv(S_k) + L_k*c_k + rho*S_k*c_k*c_k-rho*c_k;
+            gradient = rank_one_M - inv(S_k) + L_k*c_k + options.rho*S_k*c_k*c_k-options.rho*c_k;
             S_k = S_k - step * gradient;
         end
         [~,PD] = chol(S_k);
@@ -77,9 +77,11 @@ for i= 1:iter
     
     for ii=1:Q
         temp = S_k*U{ii};
-        alpha_k(ii) = max(0,-( (rho*trace((K_tilde+nv*eyeM)'*S_k'*temp-temp) ...
-            +trace(L_k'*temp)) / (rho*trace(temp'*temp)+2*LAMBDA) ) );
-        
+%         alpha_k(ii) = max(0,-( (rho*trace((K_tilde+nv*eyeM)'*S_k'*temp-temp) ...
+%             +trace(L_k'*temp)) / (rho*trace(temp'*temp)+2*LAMBDA) ) );
+        first_term = - trace( (K_tilde*U{ii}+options.nv*U{ii}) * (S_k'*S_k) - temp ) / trace(temp'*temp);
+        second_term = - trace(L_k'*temp) / (options.rho * trace(temp'*temp));
+        alpha_k(ii) = max(0, first_term+second_term);
 %         disp(-( (rho*trace(K_tilde+nv*eyeM*S_k*temp-temp) ...
 %             +trace(L_k'*temp)) / (rho*trace(temp'*temp)) ));
         if ii<Q
@@ -87,12 +89,12 @@ for i= 1:iter
         end
     end
     %record the number of survivor;
-    survivor = [survivor, survivor_tracker(alpha_k)];
+%     survivor = [survivor, survivor_tracker(alpha_k)];
     
 %     figure;
-    if rem(i,50)==0
-        read_alpha_and_plot;
-    end
+%     if rem(i,50)==0
+%         read_alpha_and_plot;
+%     end
     %
     
     
@@ -102,9 +104,9 @@ for i= 1:iter
     for ii = 1:Q % this c_k is also for next iteration.
         c_k = c_k + alpha_k(ii)*U{ii};
     end
-    c_k = c_k + nv*eyeM;
+    c_k = c_k + options.nv*eyeM;
     
-    L_k = L_k + rho*(S_k*c_k - eyeM);
+    L_k = L_k + options.rho*(S_k*c_k - eyeM);
     
     disp(['BIG LAMBDA: ',int2str(norm(L_k,'fro')^2)])
 %     [~,PD] = chol(L_k);
