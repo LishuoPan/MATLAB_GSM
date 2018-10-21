@@ -18,8 +18,6 @@ S_k = inv(c_k);
 % the first K_tilde put into the process(NO FIRST WEIGHT and noise term.)
 K_tilde = c_k - alpha_k(1)*U{1} - options.nv*eyeM;
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % START ADMM ITERATION UPDATE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,22 +44,21 @@ for i= 1:options.MAX_iter
         disp(['if the S is PD(0 is true): ',int2str(PD)]);
     end
     
-    
     %%%%%%%%%%%%%%%%%%%%
     % alpha update
     %%%%%%%%%%%%%%%%%%%%
     for ii=1:Q
         temp = S_k*U{ii};
-
+        % divide the update close form into 2 terms
         first_term = - trace( (K_tilde*U{ii}+options.nv*U{ii}) * (S_k'*S_k) - temp ) / trace(temp'*temp);
         second_term = - trace(L_k'*temp) / (options.rho * trace(temp'*temp));
         alpha_k(ii) = max(0, first_term+second_term);
-
+        % after update each alpha, update K_tilde.
+        % K_tilde in: 0XXX...X; out: XXX...X0; 0 means kernel is omitted.
         if ii<Q
             K_tilde = K_tilde + alpha_k(ii)*U{ii}  - alpha_k(ii+1)*U{ii+1};% update K_tilde for the next iteration
         end
-    end
-    
+    end    
     %%%%%%%%%%%%%%%%%%%%
     % L update
     %%%%%%%%%%%%%%%%%%%%
@@ -74,10 +71,10 @@ for i= 1:options.MAX_iter
 
     % give back the K_tilde to the next iteration(NO FIRST WEIGHT.)
     K_tilde = K_tilde - alpha_k(1)*U{1} + alpha_k(Q)*U{Q};
-    %
-     
+
 end
 
+% module return final alpha
 alpha = alpha_k;
 end
 
