@@ -1,4 +1,11 @@
 function S_g = S_gradient(ytrain, S, L, C, rho, method)
+%S_GRADIENT compute the gradient of S
+%   Input:
+%       ytrain: column vector
+%       S,L,C,rho: inherit from upper function e.g. ADMM_ML.m
+%       method: 0or1; 
+%           0 for original(include inv(S))
+%           1 for approximate(c_k replace inv(S))
     rank_one = ytrain * ytrain';
     n = length(ytrain);
     eye_M = eye(n);
