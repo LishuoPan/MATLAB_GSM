@@ -1,0 +1,13 @@
+function S_g = S_gradient(ytrain, S, L, C, rho)
+    rank_one = ytrain * ytrain';
+    n = length(ytrain);
+    eye_M = eye(n);
+    rep_one = L*C;
+    rep_two = S*C*C;
+    
+    S_g = 2*rank_one - rank_one.*eye_M ...
+          - 2*inv(S) + inv(S).*eye_M ...
+          + rep_one + rep_one' - rep_one.*eye_M ...
+          + rho*(rep_two + rep_two' - rep_two.*eye_M) ...
+          - rho*(2*C - C.*eye_M);
+end
