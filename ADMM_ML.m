@@ -13,7 +13,6 @@ function alpha = ADMM_ML(ytrain,U,options)
     Q = numel(U);
     d = length(ytrain);
     eyeM = eye(d);
-    rank_one_M = ytrain*ytrain';
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
@@ -44,7 +43,7 @@ function alpha = ADMM_ML(ytrain,U,options)
         %%%%%%%%%%%%%%%%%%%%
         step = 1e-16;
         for ii=1:1000
-            gradient = S_gradient(ytrain, S_k, L_k, c_k, rho);
+            gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho);
             S_k = S_k - step * gradient;
         end
 
