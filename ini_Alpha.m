@@ -18,7 +18,8 @@ elseif method=='compute'
         fNorm2 = norm(subKernel,'fro');
         iniAlpha(k) = fProduct/(fNorm1*fNorm2);
     end
+    s = sum(iniAlpha);
+    iniAlpha = iniAlpha/s;
 end
-s = sum(iniAlpha);
-alpha = iniAlpha/s;
+alpha = iniAlpha;
 end
