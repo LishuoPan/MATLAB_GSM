@@ -15,7 +15,7 @@ options_gen = struct('freq_lb', 0, 'freq_ub', 0.5, ...
                  'var_lb', 0, 'var_ub', 16 / (max(xtrain) - min(xtrain)), ...
                  'Q', 200, ...
                  'nFreqCand', 300, 'nVarCand', 1, ...
-                 'fix_var', 0.001, 'sampling', 'fix' );
+                 'fix_var', 0.001, 'sampling', 0 );
 
 [freq, var, Q] = generateGSM(options_gen); % the length of freq or var is Q we need
 K = kernelComponent(freq, var, xtrain, xtrain);
@@ -26,21 +26,21 @@ K = kernelComponent(freq, var, xtrain, xtrain);
 % Hyperpara Opt
 
 % ADMM ML Opt
-options_ADMM = struct('rho', 2000, 'MAX_iter', 50, 'nv', varEst, ...
-                      'iniAlpha', 200*ones(Q,1));
-
-alpha = ADMM_ML(ytrain,K,options_ADMM);
+% options_ADMM = struct('rho', 2000, 'MAX_iter', 50, 'nv', varEst, ...
+%                       'iniAlpha', 200*ones(Q,1));
+% 
+% alpha = ADMM_ML(ytrain,K,options_ADMM);
 
 
 % DCP Opt
-%{
+
 L = cell(1,Q);
 for kk =1:Q
 L{kk} = (cholcov(K{kk})).';
 end
 
 Phi = eye(nTrain);
-iniAlpha = ini_Alpha('fix', 1, Q, ytrain, K);
+iniAlpha = ini_Alpha('fix', 0, Q, ytrain, K);
 options_DCP = struct('verbose',1,'ev',false, ...
                  'nv',varEst, ...
                  'dimension_reduction',true, ...
@@ -48,7 +48,7 @@ options_DCP = struct('verbose',1,'ev',false, ...
                  'c_alpha', iniAlpha,...
                  'maxiters', 30);
 [alpha,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
-%}
+
 
 % prediction (test phase)
 [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
