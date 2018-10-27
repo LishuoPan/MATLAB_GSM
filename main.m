@@ -1,4 +1,5 @@
 clc;clear;
+addpath('./functions')
 addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
