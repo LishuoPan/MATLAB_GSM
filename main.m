@@ -12,6 +12,8 @@ varEst = evar(ytrain);
 
 
 % generate GSM kernels
+% setting part: options for generate; activate nystrom.
+Nystrom_activate = 0; % 0 for deactivate nystrom, 1 for activate nystrom
 options_gen = struct('freq_lb', 0, 'freq_ub', 0.5, ...
                  'var_lb', 0, 'var_ub', 16 / (max(xtrain) - min(xtrain)), ...
                  'Q', 200, ...
@@ -20,7 +22,6 @@ options_gen = struct('freq_lb', 0, 'freq_ub', 0.5, ...
 
 [freq, var, Q] = generateGSM(options_gen); % the length of freq or var is Q we need
 
-Nystrom_activate = 0;
 if Nystrom_activate == 0
     K = kernelComponent(freq, var, xtrain, xtrain);
     L = cell(1,Q);
@@ -34,7 +35,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 0;
+Opt_method = 0;% 0 for DCP; 1 for ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
