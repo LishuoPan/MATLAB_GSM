@@ -42,7 +42,10 @@ if Opt_method == 1
     options_ADMM = struct('rho', 2000, 'MAX_iter', 1000, 'nv', varEst, ...
                           'iniAlpha', 200*ones(Q,1));
 
-    alpha = ADMM_ML(ytrain,K,options_ADMM);
+%     alpha = ADMM_ML(ytrain,K,options_ADMM);
+
+    % this part is ADMM_ML module add plot function
+    alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
     
 elseif Opt_method == 0
     % DCP Opt
