@@ -35,7 +35,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM
+Opt_method = 0;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -58,10 +58,30 @@ elseif Opt_method == 0
                      'c_alpha', iniAlpha,...
                      'maxiters', 30);
     [alpha,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
+elseif Opt_method == 2
+    % DCP Opt
+    Phi = eye(nTrain);
+    iniAlpha = ini_Alpha('fix', 0, Q, ytrain, K);
+    options_DCP = struct('verbose',1,'ev',false, ...
+                     'nv',varEst, ...
+                     'dimension_reduction',true, ...
+                     'c_nv',0.0, ...
+                     'c_alpha', iniAlpha,...
+                     'maxiters', 1);
+    [alpha,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
+    [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
+    MSE = mean((pMean-ytest(1:nTest)).^2)
+    figName = './fig/DCPTemp';
+    plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
+    % ADMM ML Opt
+    options_ADMM = struct('rho', 2000, 'MAX_iter', 500, 'nv', varEst, ...
+                          'iniAlpha', alpha);
+    alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 end
 
 % prediction (test phase)
 [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
+MSE = mean((pMean-ytest(1:nTest)).^2)
 % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
 
 % plot phase
