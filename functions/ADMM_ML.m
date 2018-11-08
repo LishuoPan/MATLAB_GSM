@@ -43,7 +43,7 @@ function alpha = ADMM_ML(ytrain,U,options)
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
         % method for gradient descent:
-        gradient_method = 1;
+        gradient_method = 0;
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         
