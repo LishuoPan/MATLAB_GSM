@@ -1,4 +1,4 @@
-function alpha = ADMM_ML(ytrain,U,options)
+function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,options)
 %ADMM_ML ADMM framework for MLK Optimization
 %   Input class support:
 %       ytrain: training y, column vector;
@@ -73,7 +73,16 @@ function alpha = ADMM_ML(ytrain,U,options)
             if ii<Q
                 K_tilde = K_tilde + alpha_k(ii)*U{ii}  - alpha_k(ii+1)*U{ii+1};% update K_tilde for the next iteration
             end
-        end    
+        end
+        if rem(i,50)==0
+            % prediction (test phase)
+            [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
+            % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
+
+            % plot phase
+            figName = './fig/ADMM_Temp';
+            plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+        end
         %%%%%%%%%%%%%%%%%%%%
         % L update
         %%%%%%%%%%%%%%%%%%%%
