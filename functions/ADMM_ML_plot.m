@@ -43,7 +43,7 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
         % method for gradient descent:
-        gradient_method = 0;
+        gradient_method = 1;
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         
