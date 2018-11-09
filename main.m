@@ -14,6 +14,8 @@ varEst = evar(ytrain);
 % generate GSM kernels
 % setting part: options for generate; activate nystrom.
 Nystrom_activate = 0; % 0 for deactivate nystrom, 1 for activate nystrom
+
+%Sampling method: 0 represents fixed grids, 1 represents random.
 options_gen = struct('freq_lb', 0, 'freq_ub', 0.5, ...
                  'var_lb', 0, 'var_ub', 16 / (max(xtrain) - min(xtrain)), ...
                  'Q', 300, ...
@@ -39,8 +41,11 @@ Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
+        % method for gradient descent:
+        % 0 for original(include inv(S))
+        % 1 for approximate(c_k replace inv(S))
     options_ADMM = struct('rho', 2000, 'MAX_iter', 1000, 'nv', varEst, ...
-                          'iniAlpha', 200*ones(Q,1));
+                          'iniAlpha', 200*ones(Q,1),'gradient_method',0);
 
 %     alpha = ADMM_ML(ytrain,K,options_ADMM);
 
@@ -75,7 +80,7 @@ elseif Opt_method == 2
     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
     % ADMM ML Opt
     options_ADMM = struct('rho', 2000, 'MAX_iter', 500, 'nv', varEst, ...
-                          'iniAlpha', alpha);
+                          'iniAlpha', alpha,'gradient_method',1);
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 end
 
