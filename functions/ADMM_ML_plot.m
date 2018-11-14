@@ -90,9 +90,10 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
         % c_k update first
         c_k = C_matrix(alpha_k, U, options.nv, eyeM);  
         L_k = L_k + options.rho*(S_k*c_k - eyeM);
-        % display the fnorm of BIG LAMBDA as a reference of convergence
-        disp(['BIG LAMBDA: ',int2str(norm(L_k,'fro')^2)])
-
+        if rem(i,50)==0
+            % display the fnorm of BIG LAMBDA as a reference of convergence
+            disp(['BIG LAMBDA: ',int2str(norm(L_k,'fro')^2)])
+        end
         % give back the K_tilde to the next iteration(NO FIRST WEIGHT.)
         K_tilde = K_tilde - alpha_k(1)*U{1} + alpha_k(Q)*U{Q};
 
