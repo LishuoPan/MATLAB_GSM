@@ -35,8 +35,6 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
 
 
     for i= 1:options.MAX_iter
-        % iter display
-        disp(['Iteration ',int2str(i),' is running...']);
 
         %%%%%%%%%%%%%%%%%%%%
         % S update
@@ -75,6 +73,8 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
             end
         end
         if rem(i,50)==0
+            % iter display
+            disp(['Iteration ',int2str(i),' is running...']);
             % prediction (test phase)
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
             % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
