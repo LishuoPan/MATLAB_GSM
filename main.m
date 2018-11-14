@@ -81,7 +81,9 @@ elseif Opt_method == 2
     % ADMM ML Opt
     options_ADMM = struct('rho', 2000, 'MAX_iter', 500, 'nv', varEst, ...
                           'iniAlpha', alpha,'gradient_method',1);
+    tic
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    toc
 end
 
 % prediction (test phase)
