@@ -10,6 +10,8 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
 %       C_matrix.m
 %       S_gradient.m
 
+% start clock
+tic
     Q = numel(U);
     d = length(ytrain);
     eyeM = eye(d);
@@ -79,6 +81,8 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
             % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
             MSE = mean((pMean-ytest(1:nTest)).^2)
+            % record time
+            toc
             % plot phase
             figName = './fig/ADMM_Temp';
             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
