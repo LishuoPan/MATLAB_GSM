@@ -26,9 +26,6 @@ tic
     c_k = C_matrix(alpha_k, U, options.nv, eyeM);
     S_k = inv(c_k);
 
-    % the first K_tilde put into the process(NO FIRST WEIGHT and noise term.)
-    K_tilde = c_k - alpha_k(1)*U{1} - options.nv*eyeM;
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % START ADMM ITERATION UPDATE
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,16 +60,13 @@ tic
         % alpha update
         %%%%%%%%%%%%%%%%%%%%
         for ii=1:Q
-            temp = S_k*U{ii};
-            % divide the update close form into 2 terms
-            first_term = - trace( (K_tilde*U{ii}+options.nv*U{ii}) * (S_k'*S_k) - temp ) / trace(temp'*temp);
-            second_term = - trace(L_k'*temp) / (options.rho * trace(temp'*temp));
-            alpha_k(ii) = max(0, first_term+second_term);
-            % after update each alpha, update K_tilde.
-            % K_tilde in: 0XXX...X; out: XXX...X0; 0 means kernel is omitted.
-            if ii<Q
-                K_tilde = K_tilde + alpha_k(ii)*U{ii}  - alpha_k(ii+1)*U{ii+1};% update K_tilde for the next iteration
-            end
+            % pre-calculate O(n^3)
+            ske = S_k*U{ii};
+            sc = S_k*c_k;
+            old_alpha = alpha_k(ii);
+            alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, old_alpha));
+            % update new c_k
+            c_k = c_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
         end
         if rem(i,50)==0
             % iter display
@@ -91,15 +85,13 @@ tic
         % L update
         %%%%%%%%%%%%%%%%%%%%
 
-        % c_k update first
-        c_k = C_matrix(alpha_k, U, options.nv, eyeM);  
+        % c_k is ready
+
         L_k = L_k + options.rho*(S_k*c_k - eyeM);
         if rem(i,50)==0
             % display the fnorm of BIG LAMBDA as a reference of convergence
             disp(['BIG LAMBDA: ',int2str(norm(L_k,'fro')^2)])
         end
-        % give back the K_tilde to the next iteration(NO FIRST WEIGHT.)
-        K_tilde = K_tilde - alpha_k(1)*U{1} + alpha_k(Q)*U{Q};
 
     end
 
