@@ -45,7 +45,7 @@ if Opt_method == 1
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
     options_ADMM = struct('rho', 2000, 'MAX_iter', 1000, 'nv', varEst, ...
-                          'iniAlpha', 200*ones(Q,1),'gradient_method',0);
+                          'iniAlpha', 200*ones(Q,1),'gradient_method',1);
 
 %     alpha = ADMM_ML(ytrain,K,options_ADMM);
 
