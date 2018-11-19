@@ -44,6 +44,7 @@ if Opt_method == 1
         % method for gradient descent:
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
+        % 2 for further approximate(S_k*c_k=I)
     options_ADMM = struct('rho', 2000, 'MAX_iter', 1000, 'nv', varEst, ...
                           'iniAlpha', 200*ones(Q,1),'gradient_method',1);
 

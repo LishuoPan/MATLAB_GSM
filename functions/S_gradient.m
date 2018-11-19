@@ -6,24 +6,29 @@ function S_g = S_gradient(ytrain, S, L, C, rho, method)
 %       method: 0or1; 
 %           0 for original(include inv(S))
 %           1 for approximate(c_k replace inv(S))
-    rank_one = ytrain * ytrain';
+%           2 for further approximate(S_k*c_k=I)
     n = length(ytrain);
     eye_M = eye(n);
-    rep_one = L*C;
-    rep_two = S*C*C;
+    rank_one = ytrain * ytrain';
     
     if method == 0
+        psi = S*C;
+        zeta = -rho*eye_M + L + rho*psi;
+        eta = zeta*C;
         S_g = 2*rank_one - rank_one.*eye_M ...
               - 2*inv(S) + inv(S).*eye_M ...
-              + rep_one + rep_one' - rep_one.*eye_M ...
-              + rho*(rep_two + rep_two' - rep_two.*eye_M) ...
-              - rho*(2*C - C.*eye_M);
-    else
+              + eta + eta' - eta.*eye_M;
+    elseif method == 1
+        psi = S*C;
+        phi = (-1-rho)*eye_M + L + rho*psi;
+        omega = phi*C;
         S_g = 2*rank_one - rank_one.*eye_M ...
-              - 2*C + C.*eye_M ...
-              + rep_one + rep_one' - rep_one.*eye_M ...
-              + rho*(rep_two + rep_two' - rep_two.*eye_M) ...
-              - rho*(2*C - C.*eye_M);
+              + omega + omega' - omega.*eye_M;
+    else
+        I_L = -eye_M + L;
+        I_L_C = I_L * C;
+        S_g = 2*rank_one - rank_one.*eye_M ...
+              + I_L_C + I_L_C' - I_L_C.*eye_M;
     end
     
 end
