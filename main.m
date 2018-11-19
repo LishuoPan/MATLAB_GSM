@@ -4,7 +4,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'CO2';
+file_name = 'electricitydata';
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
 nTest = 20;
@@ -37,7 +37,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 0;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
