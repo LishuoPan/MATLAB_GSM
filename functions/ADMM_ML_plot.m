@@ -45,7 +45,7 @@ tic
         % 1 for approximate(c_k replace inv(S))
         
         step = 1e-16;
-        for ii=1:1000
+        for ii=1:300
             gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
             S_k = S_k - step * gradient;
         end
@@ -59,6 +59,7 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % alpha update
         %%%%%%%%%%%%%%%%%%%%
+        old_alpha_list = alpha_k;
         for ii=1:Q
             % pre-calculate O(n^3)
             ske = S_k*U{ii};
@@ -68,18 +69,27 @@ tic
             % update new c_k
             c_k = c_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
         end
+        % report phase
         if rem(i,50)==0
-            % iter display
-            disp(['Iteration ',int2str(i),' is running...']);
             % prediction (test phase)
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
             % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
-            MSE = mean((pMean-ytest(1:nTest)).^2)
-            % record time
-            toc
+            MSE = mean((pMean-ytest(1:nTest)).^2);
             % plot phase
-            figName = './fig/ADMM_Temp';
-            plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+%             figName = './fig/ADMM_Temp';
+%             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+            % print diff
+            diff_alpha = norm(old_alpha_list-alpha_k);
+            disp(['Iters:',int2str(i),'  MSE:',num2str(MSE), ...
+                '  norm2diff_alpha:',num2str(diff_alpha), ...
+                '  time:',num2str(toc), ...
+                '  LAMBDA matrix: ',num2str(norm(L_k,'fro')^2)]);
+            % stopping signal
+            if diff_alpha < 1
+                alpha = alpha_k;
+                return
+            end
+            
         end
         %%%%%%%%%%%%%%%%%%%%
         % L update
@@ -88,10 +98,6 @@ tic
         % c_k is ready
 
         L_k = L_k + options.rho*(S_k*c_k - eyeM);
-        if rem(i,50)==0
-            % display the fnorm of BIG LAMBDA as a reference of convergence
-            disp(['BIG LAMBDA: ',int2str(norm(L_k,'fro')^2)])
-        end
 
     end
 

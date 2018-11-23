@@ -37,7 +37,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -45,7 +45,7 @@ if Opt_method == 1
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         % 2 for further approximate(S_k*c_k=I)
-    options_ADMM = struct('rho', 2000, 'MAX_iter', 1000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 20000, 'MAX_iter', 1000, 'nv', varEst, ...
                           'iniAlpha', 200*ones(Q,1),'gradient_method',1);
 
 %     alpha = ADMM_ML(ytrain,K,options_ADMM);
@@ -82,7 +82,7 @@ elseif Opt_method == 2
     figName = './fig/DCPTemp';
     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
     % ADMM ML Opt
-    options_ADMM = struct('rho', 2000, 'MAX_iter', 500, 'nv', varEst, ...
+    options_ADMM = struct('rho', 4000, 'MAX_iter', 50000, 'nv', varEst, ...
                           'iniAlpha', alpha,'gradient_method',1);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
