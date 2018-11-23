@@ -90,6 +90,7 @@ tic
                 '  LAMBDA matrix: ',num2str(norm(L_k,'fro')^2)]);
             % stopping signal
             if diff_alpha < 1
+                disp('optimal alpha found.')
                 alpha = alpha_k;
                 return
             elseif i==options.MAX_iter
