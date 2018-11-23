@@ -30,9 +30,9 @@ tic
     % START ADMM ITERATION UPDATE
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
-    disp(['rho = ',num2str(options.rho), ...
+    disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
         '  inner loop:',int2str(options.inner_loop)]);
-
+    disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
 
@@ -84,10 +84,10 @@ tic
             L = chol(c_k);
             inv_LT_y = pinv(L')*ytrain;
             obj = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
-            disp(['Iters:',int2str(i),'  Obj:', sprintf('%0.5e',obj),'  MSE:',num2str(MSE), ...
-                '  norm2diff_alpha:',num2str(diff_alpha), ...
-                '  time:',num2str(toc), ...
-                '  LAMBDA matrix: ',num2str(norm(L_k,'fro')^2)]);
+            disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
+                '    ',sprintf('%0.4e',diff_alpha), ...
+                '         ',sprintf('%-.2f',toc), ...
+                '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
             % stopping signal
             if diff_alpha < 1
                 disp('optimal alpha found.')

@@ -83,7 +83,9 @@ elseif Opt_method == 2
     L = chol(c_k);
     inv_LT_y = pinv(L')*ytrain;
     obj_DCP = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
+    disp(' ');
     disp(['MSE of DCP:',num2str(MSE_DCP), '  Obj_DCP:', sprintf('%0.5e',obj_DCP)]);
+    disp(' ');
 %     figName = './fig/DCPTemp';
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
