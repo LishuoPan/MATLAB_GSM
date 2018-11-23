@@ -80,13 +80,15 @@ elseif Opt_method == 2
     [pMean_DCP, pVar_DCP] = prediction(xtrain,xtest,ytrain,nTest,alpha_DCP,varEst,freq,var,K);
     MSE_DCP = mean((pMean_DCP-ytest(1:nTest)).^2);
     c_k = C_matrix(alpha_DCP,K,varEst,eye(length(ytrain)));
-    obj_DCP = ytrain'*inv(c_k)*ytrain + log(det(c_k));
-    disp(['MSE of DCP:',num2str(MSE_DCP), '  Obj_DCP:', num2str(obj_DCP)]);
+    L = chol(c_k);
+    inv_LT_y = pinv(L')*ytrain;
+    obj_DCP = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
+    disp(['MSE of DCP:',num2str(MSE_DCP), '  Obj_DCP:', sprintf('%0.5e',obj_DCP)]);
 %     figName = './fig/DCPTemp';
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 2000, 'inner_loop', 300, 'MAX_iter', 1000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 4000, 'inner_loop', 300, 'MAX_iter', 1000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP,'gradient_method',1);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
