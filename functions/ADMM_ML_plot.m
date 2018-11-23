@@ -30,7 +30,8 @@ tic
     % START ADMM ITERATION UPDATE
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
-    disp(['The hyperparameter rho = ',sprintf('%0.20e',options.rho)]);
+    disp(['rho = ',num2str(options.rho), ...
+        '  inner loop:',int2str(options.inner_loop)]);
 
 
     for i= 1:options.MAX_iter
@@ -45,7 +46,7 @@ tic
         % 1 for approximate(c_k replace inv(S))
         
         step = 1e-16;
-        for ii=1:300
+        for ii=1:options.inner_loop
             gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
             S_k = S_k - step * gradient;
         end
@@ -70,7 +71,7 @@ tic
             c_k = c_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
         end
         % report phase
-        if rem(i,50)==0
+        if rem(i,100)==0
             % prediction (test phase)
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
             % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
@@ -86,6 +87,10 @@ tic
                 '  LAMBDA matrix: ',num2str(norm(L_k,'fro')^2)]);
             % stopping signal
             if diff_alpha < 1
+                alpha = alpha_k;
+                return
+            elseif i==options.MAX_iter
+                disp('exceed max iterations.')
                 alpha = alpha_k;
                 return
             end
