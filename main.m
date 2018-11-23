@@ -79,7 +79,9 @@ elseif Opt_method == 2
     [alpha_DCP,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
     [pMean_DCP, pVar_DCP] = prediction(xtrain,xtest,ytrain,nTest,alpha_DCP,varEst,freq,var,K);
     MSE_DCP = mean((pMean_DCP-ytest(1:nTest)).^2);
-    disp(['MSE of DCP:',num2str(MSE_DCP)]);
+    c_k = C_matrix(alpha_DCP,K,varEst,eye(length(ytrain)));
+    obj_DCP = ytrain'*inv(c_k)*ytrain + log(det(c_k));
+    disp(['MSE of DCP:',num2str(MSE_DCP), '  Obj_DCP:', num2str(obj_DCP)]);
 %     figName = './fig/DCPTemp';
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
