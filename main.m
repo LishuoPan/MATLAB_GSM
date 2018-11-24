@@ -37,7 +37,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -45,7 +45,7 @@ if Opt_method == 1
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         % 2 for further approximate(S_k*c_k=I)
-    options_ADMM = struct('rho', 2000, 'MAX_iter', 1000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 20000, 'MAX_iter', 1000, 'nv', varEst, ...
                           'iniAlpha', 200*ones(Q,1),'gradient_method',1);
 
 %     alpha = ADMM_ML(ytrain,K,options_ADMM);
@@ -76,27 +76,35 @@ elseif Opt_method == 2
                      'c_nv',0.0, ...
                      'c_alpha', iniAlpha,...
                      'maxiters', 1);
-    [alpha,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
-    [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
-    MSE = mean((pMean-ytest(1:nTest)).^2)
-    figName = './fig/DCPTemp';
-    plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
+    [alpha_DCP,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
+    [pMean_DCP, pVar_DCP] = prediction(xtrain,xtest,ytrain,nTest,alpha_DCP,varEst,freq,var,K);
+    MSE_DCP = mean((pMean_DCP-ytest(1:nTest)).^2);
+    c_k = C_matrix(alpha_DCP,K,varEst,eye(length(ytrain)));
+    L = chol(c_k);
+    inv_LT_y = pinv(L')*ytrain;
+    obj_DCP = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
+    disp(' ');
+    disp(['MSE of DCP:',num2str(MSE_DCP), '  Obj_DCP:', sprintf('%0.5e',obj_DCP)]);
+    disp(' ');
+%     figName = './fig/DCPTemp';
+%     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
+
     % ADMM ML Opt
-    options_ADMM = struct('rho', 2000, 'MAX_iter', 500, 'nv', varEst, ...
-                          'iniAlpha', alpha,'gradient_method',1);
+    options_ADMM = struct('rho', 4000, 'inner_loop', 300, 'MAX_iter', 1000, 'nv', varEst, ...
+                          'iniAlpha', alpha_DCP,'gradient_method',1);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
     
 end
 
 % prediction (test phase)
-[pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
-MSE = mean((pMean-ytest(1:nTest)).^2)
+[pMean_final, pVar_final] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
+MSE_final = mean((pMean_final-ytest(1:nTest)).^2);
 % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
 
 % plot phase
 figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
-plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName)
 
 
 

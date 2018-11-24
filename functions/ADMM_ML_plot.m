@@ -30,8 +30,9 @@ tic
     % START ADMM ITERATION UPDATE
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
-    disp(['The hyperparameter rho = ',sprintf('%0.20e',options.rho)]);
-
+    disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
+        '  inner loop:',int2str(options.inner_loop)]);
+    disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
 
@@ -45,7 +46,7 @@ tic
         % 1 for approximate(c_k replace inv(S))
         
         step = 1e-16;
-        for ii=1:1000
+        for ii=1:options.inner_loop
             gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
             S_k = S_k - step * gradient;
         end
@@ -59,6 +60,7 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % alpha update
         %%%%%%%%%%%%%%%%%%%%
+        old_alpha_list = alpha_k;
         for ii=1:Q
             % pre-calculate O(n^3)
             ske = S_k*U{ii};
@@ -68,18 +70,35 @@ tic
             % update new c_k
             c_k = c_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
         end
-        if rem(i,50)==0
-            % iter display
-            disp(['Iteration ',int2str(i),' is running...']);
+        % report phase
+        if rem(i,100)==0
             % prediction (test phase)
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
             % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
-            MSE = mean((pMean-ytest(1:nTest)).^2)
-            % record time
-            toc
+            MSE = mean((pMean-ytest(1:nTest)).^2);
             % plot phase
-            figName = './fig/ADMM_Temp';
-            plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+%             figName = './fig/ADMM_Temp';
+%             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+            % print diff
+            diff_alpha = norm(old_alpha_list-alpha_k);
+            L = chol(c_k);
+            inv_LT_y = pinv(L')*ytrain;
+            obj = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
+            disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
+                '    ',sprintf('%0.4e',diff_alpha), ...
+                '         ',sprintf('%-.2f',toc), ...
+                '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
+            % stopping signal
+            if diff_alpha < 1
+                disp('optimal alpha found.')
+                alpha = alpha_k;
+                return
+            elseif i==options.MAX_iter
+                disp('exceed max iterations.')
+                alpha = alpha_k;
+                return
+            end
+            
         end
         %%%%%%%%%%%%%%%%%%%%
         % L update
@@ -88,10 +107,6 @@ tic
         % c_k is ready
 
         L_k = L_k + options.rho*(S_k*c_k - eyeM);
-        if rem(i,50)==0
-            % display the fnorm of BIG LAMBDA as a reference of convergence
-            disp(['BIG LAMBDA: ',int2str(norm(L_k,'fro')^2)])
-        end
 
     end
 
