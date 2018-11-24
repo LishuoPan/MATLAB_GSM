@@ -75,7 +75,7 @@ elseif Opt_method == 2
                      'dimension_reduction',true, ...
                      'c_nv',0.0, ...
                      'c_alpha', iniAlpha,...
-                     'maxiters', 3);
+                     'maxiters', 25);
     [alpha_DCP,nv,info] = mkrm_optimize(ytrain,Phi,L,options_DCP);
     [pMean_DCP, pVar_DCP] = prediction(xtrain,xtest,ytrain,nTest,alpha_DCP,varEst,freq,var,K);
     MSE_DCP = mean((pMean_DCP-ytest(1:nTest)).^2);
@@ -90,7 +90,7 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 10, 'inner_loop', 1000, 'MAX_iter', 4000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 10, 'inner_loop', 300, 'MAX_iter', 4000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP,'gradient_method',1);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
