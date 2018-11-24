@@ -72,7 +72,7 @@ tic
         end
         diff_alpha = norm(old_alpha_list-alpha_k);
         % stopping signal
-        if diff_alpha < 1
+        if diff_alpha < 0.1
             % prediction (test phase)
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
             % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
