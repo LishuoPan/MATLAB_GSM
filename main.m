@@ -97,16 +97,22 @@ elseif Opt_method == 2
     
 end
 
-% prediction (test phase)
-[pMean_final, pVar_final] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
-MSE_final = mean((pMean_final-ytest(1:nTest)).^2);
-% [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
+if Opt_method == 2
+    % prediction (test phase)
+    [pMean_final, pVar_final] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
+    MSE_final = mean((pMean_final-ytest(1:nTest)).^2);
+    % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
 
-% plot phase
-figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
-plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName)
+    % plot phase
+    figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
+    plot_save_compare(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName);
 
-
+else
+    [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
+    MSE = mean((pMean-ytest(1:nTest)).^2);
+    figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
+    plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
+end
 
 
 
