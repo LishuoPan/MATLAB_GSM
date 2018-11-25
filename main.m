@@ -90,7 +90,7 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 4000, 'inner_loop', 300, 'MAX_iter', 1000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 1000, 'inner_loop', 300, 'MAX_iter', 5000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP,'gradient_method',1);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
@@ -105,13 +105,13 @@ if Opt_method == 2
 
     % plot phase
     figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
-    plot_save_compare(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName);
+    plot_save_compare(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName,file_name);
 
 else
     [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
     MSE = mean((pMean-ytest(1:nTest)).^2);
     figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
-    plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
+    plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName,file_name);
 end
 
 

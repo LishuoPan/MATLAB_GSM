@@ -70,6 +70,34 @@ tic
             % update new c_k
             c_k = c_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
         end
+        diff_alpha = norm(old_alpha_list-alpha_k);
+        % stopping signal
+        if diff_alpha < 0.1
+            % prediction (test phase)
+            [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
+            % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
+            MSE = mean((pMean-ytest(1:nTest)).^2);
+            % plot phase
+%             figName = './fig/ADMM_Temp';
+%             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
+            % print diff
+%             diff_alpha = norm(old_alpha_list-alpha_k);
+            L = chol(c_k);
+            inv_LT_y = pinv(L')*ytrain;
+            obj = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
+            disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
+                '    ',sprintf('%0.4e',diff_alpha), ...
+                '         ',sprintf('%-.2f',toc), ...
+                '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
+            disp('optimal alpha found.');
+            alpha = alpha_k;
+            return
+        elseif i==options.MAX_iter
+            disp('exceed max iterations.')
+            alpha = alpha_k;
+            return
+        end
+        
         % report phase
         if rem(i,100)==0
             % prediction (test phase)
@@ -80,7 +108,7 @@ tic
 %             figName = './fig/ADMM_Temp';
 %             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
             % print diff
-            diff_alpha = norm(old_alpha_list-alpha_k);
+%             diff_alpha = norm(old_alpha_list-alpha_k);
             L = chol(c_k);
             inv_LT_y = pinv(L')*ytrain;
             obj = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
@@ -88,16 +116,7 @@ tic
                 '    ',sprintf('%0.4e',diff_alpha), ...
                 '         ',sprintf('%-.2f',toc), ...
                 '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
-            % stopping signal
-            if diff_alpha < 1
-                disp('optimal alpha found.')
-                alpha = alpha_k;
-                return
-            elseif i==options.MAX_iter
-                disp('exceed max iterations.')
-                alpha = alpha_k;
-                return
-            end
+
             
         end
         %%%%%%%%%%%%%%%%%%%%
