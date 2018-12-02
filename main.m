@@ -45,13 +45,13 @@ if Opt_method == 1
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         % 2 for further approximate(S_k*c_k=I)
-    options_ADMM = struct('rho', 20000, 'MAX_iter', 1000, 'nv', varEst, ...
+
+    % ADMM ML Opt
+    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
                           'iniAlpha', 200*ones(Q,1),'gradient_method',1);
-
-%     alpha = ADMM_ML(ytrain,K,options_ADMM);
-
-    % this part is ADMM_ML module add plot function
+    
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+
     
 elseif Opt_method == 0
     % DCP Opt
@@ -90,7 +90,7 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 1000, 'rho_dual', 1000, 'inner_loop', 300, 'mu', 1e-16, 'MAX_iter', 5000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP,'gradient_method',1);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
