@@ -37,7 +37,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
