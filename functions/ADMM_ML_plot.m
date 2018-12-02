@@ -46,7 +46,7 @@ tic
             gradient_vec_norm = gradient(:)/norm(gradient(:));
             S_k_vec = S_k(:);
             z = S_k_vec - step * gradient_vec_norm;
-            if norm(z-S_k_vec)<1e-2*options.mu
+            if norm(z-S_k_vec)<(1e-2)*options.mu
                 S_k = reshape(z,[d,d]);
                 break;
             end
