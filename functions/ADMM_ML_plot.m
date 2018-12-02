@@ -45,7 +45,7 @@ tic
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         
-        step = 1e-16;
+        step = options.mu;
         for ii=1:options.inner_loop
             gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
             S_k = S_k - step * gradient;
@@ -73,22 +73,8 @@ tic
         diff_alpha = norm(old_alpha_list-alpha_k);
         % stopping signal
         if diff_alpha < 0.1
-            % prediction (test phase)
-            [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
-            % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
-            MSE = mean((pMean-ytest(1:nTest)).^2);
-            % plot phase
-%             figName = './fig/ADMM_Temp';
-%             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
-            % print diff
-%             diff_alpha = norm(old_alpha_list-alpha_k);
-            L = chol(c_k);
-            inv_LT_y = pinv(L')*ytrain;
-            obj = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
-            disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
-                '    ',sprintf('%0.4e',diff_alpha), ...
-                '         ',sprintf('%-.2f',toc), ...
-                '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
+            obj = ML_obj(c_k, ytrain);
+            disp([int2str(i),' It.',' obj: ', sprintf('%0.4e',obj),' Time: ',sprintf('%-.2f',toc)])
             disp('optimal alpha found.');
             alpha = alpha_k;
             return
@@ -102,16 +88,12 @@ tic
         if rem(i,100)==0
             % prediction (test phase)
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
-            % [pMean, pVar] = prediction(xtest,nTest,xtrain,ytrain,nTrain,K,alpha,Q,nv,freq,var);
             MSE = mean((pMean-ytest(1:nTest)).^2);
             % plot phase
 %             figName = './fig/ADMM_Temp';
 %             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
-            % print diff
-%             diff_alpha = norm(old_alpha_list-alpha_k);
-            L = chol(c_k);
-            inv_LT_y = pinv(L')*ytrain;
-            obj = inv_LT_y'*inv_LT_y + log(det(L')) + log(det(L));
+
+            obj = ML_obj(c_k, ytrain);
             disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
                 '    ',sprintf('%0.4e',diff_alpha), ...
                 '         ',sprintf('%-.2f',toc), ...
@@ -125,7 +107,7 @@ tic
 
         % c_k is ready
 
-        L_k = L_k + options.rho*(S_k*c_k - eyeM);
+        L_k = L_k + options.rho_dual*(S_k*c_k - eyeM);
 
     end
 
