@@ -74,10 +74,7 @@ tic
         % stopping signal
         if diff_alpha < 0.1
             obj = ML_obj(c_k, ytrain);
-            disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
-                '    ',sprintf('%0.4e',diff_alpha), ...
-                '         ',sprintf('%-.2f',toc), ...
-                '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
+            disp([int2str(i),' It.',' obj: ', sprintf('%0.4e',obj),' Time: ',sprintf('%-.2f',toc)])
             disp('optimal alpha found.');
             alpha = alpha_k;
             return
