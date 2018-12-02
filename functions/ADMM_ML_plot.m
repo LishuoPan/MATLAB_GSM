@@ -45,7 +45,7 @@ tic
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         
-        step = 1e-16;
+        step = options.mu;
         for ii=1:options.inner_loop
             gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
             S_k = S_k - step * gradient;
@@ -125,7 +125,7 @@ tic
 
         % c_k is ready
 
-        L_k = L_k + options.rho*(S_k*c_k - eyeM);
+        L_k = L_k + options.rho_dual*(S_k*c_k - eyeM);
 
     end
 
