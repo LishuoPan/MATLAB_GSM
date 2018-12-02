@@ -48,7 +48,7 @@ if Opt_method == 1
 
     % ADMM ML Opt
     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
-                          'iniAlpha', 200*ones(Q,1),'gradient_method',1);
+                          'iniAlpha', 200*ones(Q,1));
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 
@@ -91,7 +91,7 @@ elseif Opt_method == 2
 
     % ADMM ML Opt
     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
-                          'iniAlpha', alpha_DCP,'gradient_method',1);
+                          'iniAlpha', alpha_DCP);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
     

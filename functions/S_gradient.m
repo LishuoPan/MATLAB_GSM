@@ -1,4 +1,4 @@
-function S_g = S_gradient(ytrain, S, L, C, rho, method)
+function S_g = S_gradient(ytrain, S, L, C, rho)
 %S_GRADIENT compute the gradient of S
 %   Input:
 %       ytrain: column vector

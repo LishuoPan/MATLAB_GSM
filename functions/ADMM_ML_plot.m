@@ -42,7 +42,7 @@ tic
         % gradient descent update
         for ii=1:options.inner_loop
             step = options.mu*(1/ii);
-            gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
+            gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho);
             gradient_vec_norm = gradient(:)/norm(gradient(:));
             S_k_vec = S_k(:);
             z = S_k_vec - step * gradient_vec_norm;
