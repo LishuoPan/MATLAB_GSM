@@ -40,15 +40,17 @@ tic
         % S update
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
-        % method for gradient descent:
-%         gradient_method = 1;
-        % 0 for original(include inv(S))
-        % 1 for approximate(c_k replace inv(S))
-        
-        step = options.mu;
         for ii=1:options.inner_loop
-            gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho, options.gradient_method);
-            S_k = S_k - step * gradient;
+            step = options.mu*(1/ii);
+            gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho);
+            gradient_vec_norm = gradient(:)/norm(gradient(:));
+            S_k_vec = S_k(:);
+            z = S_k_vec - step * gradient_vec_norm;
+            if norm(z-S_k_vec)<1e-2*options.mu
+                S_k = reshape(z,[d,d]);
+                break;
+            end
+            S_k = reshape(z,[d,d]); 
         end
 
         % display when S_k is not PD
