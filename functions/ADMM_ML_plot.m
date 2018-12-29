@@ -84,7 +84,7 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % L update
         %%%%%%%%%%%%%%%%%%%%
-        % Close form update L
+        % Close form update L. Use a smaller dual coefficient
         L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
         
         %%%%%%%%%%%%%%%%%%%%
