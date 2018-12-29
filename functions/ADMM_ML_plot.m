@@ -84,17 +84,18 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % L update
         %%%%%%%%%%%%%%%%%%%%
-
         % c_k is ready
         L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+        
         %%%%%%%%%%%%%%%%%%%%
-        % report phase
+        % Print Report
         %%%%%%%%%%%%%%%%%%%%
+        % report every 100 iterations.
         if rem(i,100)==0
-            % prediction (test phase)
+            % prediction & report the MSE
             [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
-            % plot phase
+            % plot
 %             figName = './fig/ADMM_Temp';
 %             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
 
@@ -103,16 +104,14 @@ tic
                 '    ',sprintf('%0.4e',diff_alpha), ...
                 '         ',sprintf('%-.2f',toc), ...
                 '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
-        elseif i==options.MAX_iter
-            disp('Exceed Max Iterations.')
-            AlphaReturn = Alpha_k;
-            return       
-        end        
-
+        end
+        % end of Print
+        %%%%%%%%%%%%%%%%%%%%
     end
     
 
-    % Module Return Alpha
+    % Max It. Reached. Module Return Alpha
+    disp('Exceed Max Iterations.')
     AlphaReturn = Alpha_k;
 end
 
