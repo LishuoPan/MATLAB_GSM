@@ -1,5 +1,6 @@
 clc;clear;
 addpath('./functions')
+addpath('./functions/l1_ls_matlab')
 addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
@@ -45,10 +46,13 @@ if Opt_method == 1
         % 0 for original(include inv(S))
         % 1 for approximate(c_k replace inv(S))
         % 2 for further approximate(S_k*c_k=I)
+    [iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
-                          'iniAlpha', 200*ones(Q,1));
+    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-6, 'MAX_iter', 50000, 'nv', varEst, ...
+                          'iniAlpha', iniAlpha_Pdg);
+%     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
+%                           'iniAlpha', 200*ones(Q,1));
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 
