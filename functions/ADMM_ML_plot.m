@@ -13,18 +13,18 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
 % start clock
 tic
     Q = numel(U);
-    d = length(ytrain);
-    eyeM = eye(d);
+    n = length(ytrain);
+    I_Matrix = eye(n);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % initialize the hyperparameter
+    % Init hyperparameter
     alpha_k = options.iniAlpha;
-    L_k = eye(d);
-    % the first c_k put into the process
-    c_k = C_matrix(alpha_k, U, options.nv, eyeM);
-    S_k = inv(c_k);
+    L_k = I_Matrix;
+    % First c_k and S_k
+    C_k = C_matrix(alpha_k, U, options.nv, I_Matrix);
+    S_k = inv(C_k);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % START ADMM ITERATION UPDATE
@@ -42,15 +42,15 @@ tic
         % gradient descent update
         for ii=1:options.inner_loop
             step = options.mu*(1/ii);
-            gradient = S_gradient(ytrain, S_k, L_k, c_k, options.rho);
+            gradient = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
             gradient_vec_norm = gradient(:)/norm(gradient(:));
             S_k_vec = S_k(:);
             z = S_k_vec - step * gradient_vec_norm;
             if norm(z-S_k_vec)<(1e-2)*options.mu
-                S_k = reshape(z,[d,d]);
+                S_k = reshape(z,[n,n]);
                 break;
             end
-            S_k = reshape(z,[d,d]); 
+            S_k = reshape(z,[n,n]); 
         end
 
         % display when S_k is not PD
@@ -66,16 +66,16 @@ tic
         for ii=1:Q
             % pre-calculate O(n^3)
             ske = S_k*U{ii};
-            sc = S_k*c_k;
+            sc = S_k*C_k;
             old_alpha = alpha_k(ii);
             alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, old_alpha));
             % update new c_k
-            c_k = c_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
+            C_k = C_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
         end
         diff_alpha = norm(old_alpha_list-alpha_k);
         % stopping signal
         if diff_alpha < 0.1
-            obj = ML_obj(c_k, ytrain);
+            obj = ML_obj(C_k, ytrain);
             disp([int2str(i),' It.',' obj: ', sprintf('%0.4e',obj),' Time: ',sprintf('%-.2f',toc)])
             disp('optimal alpha found.');
             alpha = alpha_k;
@@ -95,7 +95,7 @@ tic
 %             figName = './fig/ADMM_Temp';
 %             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
 
-            obj = ML_obj(c_k, ytrain);
+            obj = ML_obj(C_k, ytrain);
             disp([sprintf('%-4d',i),'   ', sprintf('%0.4e',obj),'    ',sprintf('%0.4e',MSE), ...
                 '    ',sprintf('%0.4e',diff_alpha), ...
                 '         ',sprintf('%-.2f',toc), ...
@@ -109,7 +109,7 @@ tic
 
         % c_k is ready
 
-        L_k = L_k + options.rho_dual*(S_k*c_k - eyeM);
+        L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
 
     end
 
