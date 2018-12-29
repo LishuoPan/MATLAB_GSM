@@ -1,4 +1,4 @@
-function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,options)
+function AlphaReturn = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
 %ADMM_ML ADMM framework for MLK Optimization
 %   Input class support:
 %       ytrain: training y, column vector;
@@ -12,22 +12,21 @@ function alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,U,
 
 % start clock
 tic
-    Q = numel(U);
+    % define constants
+    Q = numel(K);
     n = length(ytrain);
     I_Matrix = eye(n);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Init hyperparameter
-    alpha_k = options.iniAlpha;
+    Alpha_k = options.iniAlpha;
     L_k = I_Matrix;
-    % First c_k and S_k
-    C_k = C_matrix(alpha_k, U, options.nv, I_Matrix);
+    C_k = C_matrix(Alpha_k, K, options.nv, I_Matrix);
     S_k = inv(C_k);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % START ADMM ITERATION UPDATE
+    % START ADMM ITERATIONS
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
     disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
@@ -41,55 +40,59 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
         for ii=1:options.inner_loop
+            % diminishing step size
             step = options.mu*(1/ii);
-            gradient = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
-            gradient_vec_norm = gradient(:)/norm(gradient(:));
-            S_k_vec = S_k(:);
-            z = S_k_vec - step * gradient_vec_norm;
-            if norm(z-S_k_vec)<(1e-2)*options.mu
-                S_k = reshape(z,[n,n]);
-                break;
+            % compute normalized S gradient & update S
+            gradient_norm = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
+            Z = S_k - step * gradient_norm;
+            % Inner loop stopping criteria
+            if norm(Z-S_k,'fro')<(1e-2)*options.mu
+                S_k = Z;
+                break
             end
-            S_k = reshape(z,[n,n]); 
+            % return S_k
+            S_k = Z;
         end
 
-        % display when S_k is not PD
+        % display S matrix Non-PD info
         [~,PD] = chol(S_k);
         if PD ~= 0
-            disp(['if the S is PD(0 is true): ',int2str(PD)]);
+            disp('Warning: S matrix is Non-PD, this may lead to failure');
         end
 
         %%%%%%%%%%%%%%%%%%%%
         % alpha update
         %%%%%%%%%%%%%%%%%%%%
-        old_alpha_list = alpha_k;
+        LastAlpha = Alpha_k;
         for ii=1:Q
             % pre-calculate O(n^3)
-            ske = S_k*U{ii};
+            ske = S_k*K{ii};
             sc = S_k*C_k;
-            old_alpha = alpha_k(ii);
-            alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, old_alpha));
-            % update new c_k
-            C_k = C_k - old_alpha*U{ii} + alpha_k(ii)*U{ii};
+            OldAlphaii = Alpha_k(ii);
+            Alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, OldAlphaii));
+            % update new C_k
+            C_k = C_k - OldAlphaii*K{ii} + Alpha_k(ii)*K{ii};
         end
-        diff_alpha = norm(old_alpha_list-alpha_k);
-        % stopping signal
+        diff_alpha = norm(LastAlpha-Alpha_k);
+        % stopping criteria
         if diff_alpha < 0.1
-            obj = ML_obj(C_k, ytrain);
-            disp([int2str(i),' It.',' obj: ', sprintf('%0.4e',obj),' Time: ',sprintf('%-.2f',toc)])
-            disp('optimal alpha found.');
-            alpha = alpha_k;
-            return
-        elseif i==options.MAX_iter
-            disp('exceed max iterations.')
-            alpha = alpha_k;
+            disp('Optimal Alpha Found.');
+            AlphaReturn = Alpha_k;
             return
         end
         
+        %%%%%%%%%%%%%%%%%%%%
+        % L update
+        %%%%%%%%%%%%%%%%%%%%
+
+        % c_k is ready
+        L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+        %%%%%%%%%%%%%%%%%%%%
         % report phase
+        %%%%%%%%%%%%%%%%%%%%
         if rem(i,100)==0
             % prediction (test phase)
-            [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha_k,varEst,freq,var,U);
+            [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
             % plot phase
 %             figName = './fig/ADMM_Temp';
@@ -100,21 +103,17 @@ tic
                 '    ',sprintf('%0.4e',diff_alpha), ...
                 '         ',sprintf('%-.2f',toc), ...
                 '   ',sprintf('%0.4e',norm(L_k,'fro')^2)]);
-
-            
-        end
-        %%%%%%%%%%%%%%%%%%%%
-        % L update
-        %%%%%%%%%%%%%%%%%%%%
-
-        % c_k is ready
-
-        L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+        elseif i==options.MAX_iter
+            disp('Exceed Max Iterations.')
+            AlphaReturn = Alpha_k;
+            return       
+        end        
 
     end
+    
 
-    % module return final alpha
-    alpha = alpha_k;
+    % Module Return Alpha
+    AlphaReturn = Alpha_k;
 end
 
 

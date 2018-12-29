@@ -1,5 +1,5 @@
 function S_g = S_gradient(ytrain, S, L, C, rho)
-%S_GRADIENT compute the gradient of S
+%S_GRADIENT compute the normalized gradient of S
 %   Input:
 %       ytrain: column vector
 %       S,L,C,rho: inherit from upper function e.g. ADMM_ML.m
@@ -30,5 +30,5 @@ function S_g = S_gradient(ytrain, S, L, C, rho)
 %         S_g = 2*rank_one - rank_one.*eye_M ...
 %               + I_L_C + I_L_C' - I_L_C.*eye_M;
     end
-    
+    S_g = S_g/norm(S_g,'fro');
 end
