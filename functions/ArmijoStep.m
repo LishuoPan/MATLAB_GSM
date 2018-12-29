@@ -1,9 +1,9 @@
 function [step,goodness] = ArmijoStep(ytrain, S, L, C, rho)
 %% Armijo Rule find the step size
     s = 1;
-    beta = 1/5;
-    sigma = 1e-5;
-    SearchMax = 100;
+    beta = 1/2;
+    sigma = 1e-3;
+    SearchMax = 1000;
     Sg = S_gradient(ytrain, S, L, C, rho);
     d = -Sg/norm(Sg,'fro');
     % strat search
@@ -22,6 +22,7 @@ function [step,goodness] = ArmijoStep(ytrain, S, L, C, rho)
             end
         end
     end
+    disp('Armijo Fail')
     goodness = 'Fail Search';
     step = betaM*s;
 end
