@@ -84,7 +84,7 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % L update
         %%%%%%%%%%%%%%%%%%%%
-        % c_k is ready
+        % Close form update L
         L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
         
         %%%%%%%%%%%%%%%%%%%%
@@ -108,7 +108,6 @@ tic
         % end of Print
         %%%%%%%%%%%%%%%%%%%%
     end
-    
 
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
