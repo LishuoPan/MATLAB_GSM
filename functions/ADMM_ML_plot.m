@@ -41,7 +41,9 @@ tic
         % gradient descent update
         for ii=1:options.inner_loop
             % diminishing step size
-            step = options.mu*(1/ii);
+%             step = options.mu*(1/ii);
+            %Armijo Rule
+            [step,goodness] = ArmijoStep(ytrain, S_k, L_k, C_k, options.rho);
             % compute normalized S gradient & update S
             gradient = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
             gradient_norm = gradient/norm(gradient,'fro');

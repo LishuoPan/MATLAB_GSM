@@ -9,13 +9,17 @@ function [step,goodness] = ArmijoStep(ytrain, S, L, C, rho)
     % strat search
     for i = 1:SearchMax
         betaM = beta^i;
-        fevalCur = AugObj(ytrain, S, L, C, rho);
-        fevalSea = AugObj(ytrain, S+betaM*s*d, L, C, rho);
-        RHS = -sigma*betaM*s*(-norm(Sg,'fro'));
-        if fevalCur-fevalSea>=RHS
-            step = betaM*s;
-            goodness = 'Success Search'
-            return
+        SSea = S+betaM*s*d;
+        [~,PD] = chol(SSea);
+        if PD == 0
+            fevalCur = AugObj(ytrain, S, L, C, rho);
+            fevalSea = AugObj(ytrain, SSea, L, C, rho);
+            RHS = -sigma*betaM*s*(-norm(Sg,'fro'));
+            if fevalCur-fevalSea>=RHS
+                step = betaM*s;
+                goodness = 'Success Search';
+                return
+            end
         end
     end
     goodness = 'Fail Search';
