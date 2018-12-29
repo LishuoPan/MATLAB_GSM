@@ -43,7 +43,8 @@ tic
             % diminishing step size
             step = options.mu*(1/ii);
             % compute normalized S gradient & update S
-            gradient_norm = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
+            gradient = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
+            gradient_norm = gradient/norm(gradient,'fro');
             Z = S_k - step * gradient_norm;
             % Inner loop stopping criteria
             if norm(Z-S_k,'fro')<(1e-2)*options.mu
