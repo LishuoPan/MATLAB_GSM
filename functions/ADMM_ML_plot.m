@@ -78,7 +78,7 @@ tic
         end
         diff_alpha = norm(LastAlpha-Alpha_k);
         % stopping criteria
-        if diff_alpha < 0.1
+        if diff_alpha < 0.01
             disp('Optimal Alpha Found.');
             AlphaReturn = Alpha_k;
             return

@@ -5,7 +5,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'passengerdata';
+file_name = 'hoteldata';
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
 nTest = 20;
@@ -38,7 +38,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -49,7 +49,7 @@ if Opt_method == 1
     [iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-6, 'MAX_iter', 5000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 1000, 'mu', 1e-6, 'MAX_iter', 100000, 'nv', varEst, ...
                           'iniAlpha', iniAlpha_Pdg);
 %     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
 %                           'iniAlpha', 200*ones(Q,1));
