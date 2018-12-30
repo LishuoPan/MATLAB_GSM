@@ -30,7 +30,7 @@ tic
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
     disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
-        '  dual rho = ',options.rho_dual,'  inner loop:',int2str(options.inner_loop)]);
+        '  dual rho = ',num2str(options.rho_dual),'  inner loop:',int2str(options.inner_loop)]);
     disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
