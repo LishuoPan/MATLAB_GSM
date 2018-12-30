@@ -5,7 +5,8 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'hoteldata';
+file_name = 'employmentdata';
+disp(['Simulation on',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
 nTest = 20;

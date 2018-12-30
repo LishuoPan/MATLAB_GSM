@@ -30,7 +30,7 @@ tic
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
     disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
-        '  inner loop:',int2str(options.inner_loop)]);
+        '  dual rho = ',options.rho_dual,'  inner loop:',int2str(options.inner_loop)]);
     disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
@@ -78,7 +78,7 @@ tic
         end
         diff_alpha = norm(LastAlpha-Alpha_k);
         % stopping criteria
-        if diff_alpha < 0.01
+        if diff_alpha < 0.001
             disp('Optimal Alpha Found.');
             AlphaReturn = Alpha_k;
             return
