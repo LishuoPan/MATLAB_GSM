@@ -30,7 +30,7 @@ tic
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
     disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
-        '  inner loop:',int2str(options.inner_loop)]);
+        '  dual rho = ',num2str(options.rho_dual),'  inner loop:',int2str(options.inner_loop)]);
     disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
@@ -40,11 +40,13 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
         for ii=1:options.inner_loop
-            % diminishing step size
-            step = options.mu*(1/ii);
             % compute normalized S gradient & update S
-            gradient_norm = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
-            Z = S_k - step * gradient_norm;
+            Sg = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
+            d = -(Sg/norm(Sg,'fro'));
+            %Armijo Rule
+            [step,goodness] = ...
+                ArmijoStep(ytrain, S_k, L_k, C_k, options.rho, Sg(:), d(:));
+            Z = S_k + step * d;
             % Inner loop stopping criteria
             if norm(Z-S_k,'fro')<(1e-2)*options.mu
                 S_k = Z;
@@ -75,7 +77,7 @@ tic
         end
         diff_alpha = norm(LastAlpha-Alpha_k);
         % stopping criteria
-        if diff_alpha < 0.1
+        if diff_alpha < 0.001
             disp('Optimal Alpha Found.');
             AlphaReturn = Alpha_k;
             return

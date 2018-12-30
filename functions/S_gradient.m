@@ -25,5 +25,4 @@ function S_g = S_gradient(ytrain, S, L, C, rho)
         S_g = 2*rank_one - rank_one.*eye_M ...
               + omega + omega' - omega.*eye_M;
     end
-    S_g = S_g/norm(S_g,'fro');
 end
