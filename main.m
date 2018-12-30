@@ -5,7 +5,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'passengerdata';
+file_name = 'hoteldata';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
@@ -39,7 +39,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -95,7 +95,7 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 2000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 100, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 2000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
