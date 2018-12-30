@@ -40,13 +40,12 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
         for ii=1:options.inner_loop
-            % diminishing step size
-%             step = options.mu*(1/ii);
-            %Armijo Rule
-            [step,goodness] = ArmijoStep(ytrain, S_k, L_k, C_k, options.rho);
             % compute normalized S gradient & update S
-            gradient = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
-            d = -(gradient/norm(gradient,'fro'));
+            Sg = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
+            d = -(Sg/norm(Sg,'fro'));
+            %Armijo Rule
+            [step,goodness] = ...
+                ArmijoStep(ytrain, S_k, L_k, C_k, options.rho, Sg(:), d(:));
             Z = S_k + step * d;
             % Inner loop stopping criteria
             if norm(Z-S_k,'fro')<(1e-2)*options.mu
