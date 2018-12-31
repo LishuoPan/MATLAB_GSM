@@ -30,7 +30,7 @@ tic
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
     disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
-        '  dual rho = ',num2str(options.rho_dual),'  inner loop:',int2str(options.inner_loop)]);
+        '  dual rho = ',num2str(options.rho_dual),'  inner loop:',int2str(options.MaxIL)]);
     disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
@@ -39,22 +39,7 @@ tic
         % S update
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
-        for ii=1:options.inner_loop
-            % compute normalized S gradient & update S
-            Sg = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
-            d = -(Sg/norm(Sg,'fro'));
-            %Armijo Rule
-            [step,goodness] = ...
-                ArmijoStep(ytrain, S_k, L_k, C_k, options.rho, Sg(:), d(:));
-            Z = S_k + step * d;
-            % Inner loop stopping criteria
-            if norm(Z-S_k,'fro')<(1e-2)*options.mu
-                S_k = Z;
-                break
-            end
-            % return S_k
-            S_k = Z;
-        end
+        S_k = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
 
         % display S matrix Non-PD info
         [~,PD] = chol(S_k);
