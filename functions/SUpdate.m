@@ -1,5 +1,5 @@
 function SReturn = SUpdate(ytrain, S, L, C, rho, MaxIL)
-    epsilon = 1e-03;
+    epsilon = 1e-08;
     n = length(ytrain);
     for ii=1:MaxIL
         % compute normalized S gradient & update S
@@ -13,7 +13,7 @@ function SReturn = SUpdate(ytrain, S, L, C, rho, MaxIL)
         d = reshape(d_vec,[n,n]);
         Z = S + step * d;
         % Inner loop stopping criteria
-        if norm(Sg_vec)<epsilon
+        if norm(Z-S,'fro')<epsilon
             S = Z;
             break
         end
