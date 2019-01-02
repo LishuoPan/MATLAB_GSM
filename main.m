@@ -5,7 +5,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'hoteldata';
+file_name = 'employmentdata';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
@@ -95,7 +95,7 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 200, 'rho_dual', 100, 'MaxIL', 300, 'mu', 1e-7, 'MAX_iter', 50000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 100, 'MaxIL', 300, 'mu', 1e-7, 'MAX_iter', 50000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP);
     
     alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
