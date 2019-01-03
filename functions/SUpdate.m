@@ -1,5 +1,5 @@
 function SReturn = SUpdate(ytrain, S, L, C, rho, MaxIL)
-    epsilon = 1e-08;
+    epsilon = 1e-09;
     n = length(ytrain);
     for ii=1:MaxIL
         % compute normalized S gradient & update S
