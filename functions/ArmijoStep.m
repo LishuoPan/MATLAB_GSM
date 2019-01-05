@@ -7,7 +7,7 @@ function [step,goodness] = ArmijoStep(ytrain, S, L, C, rho, Sg_vec, d_vec)
     SearchMax = 100;
     d = reshape(d_vec,[n,n]);
     % strat search
-    for i = 1:SearchMax
+    for i = 0:SearchMax
         betaM = beta^i;
         % (S+delta*Sg) matrix 
         SSea = S+betaM*s*d;
