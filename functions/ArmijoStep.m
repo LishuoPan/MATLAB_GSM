@@ -1,6 +1,6 @@
 function [step,goodness] = ArmijoStep(ytrain, S, L, C, rho, Sg_vec, d_vec)
 %% Armijo Rule find the step size
-    s = 1;
+    s = 1e-4;
     n = length(ytrain);
     beta = 1/5;
     sigma = 1e-5;

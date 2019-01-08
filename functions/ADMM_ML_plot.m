@@ -1,4 +1,4 @@
-function AlphaReturn = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
+function [AlphaReturn, AugObjEval, OriObjEval] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
 %ADMM_ML ADMM framework for MLK Optimization
 %   Input class support:
 %       ytrain: training y, column vector;
@@ -16,7 +16,8 @@ tic
     Q = numel(K);
     n = length(ytrain);
     I_Matrix = eye(n);
-
+    AugObjEval = zeros(options.MAX_iter,1);
+    OriObjEval = zeros(options.MAX_iter,1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -34,7 +35,8 @@ tic
     disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
-
+        AugObjEval(i) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+        OriObjEval(i) = ML_obj(C_k, ytrain);
         %%%%%%%%%%%%%%%%%%%%
         % S update
         %%%%%%%%%%%%%%%%%%%%

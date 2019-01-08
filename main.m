@@ -50,12 +50,12 @@ if Opt_method == 1
     [iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 300, 'mu', 1e-6, 'MAX_iter', 100000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 500, 'mu', 1e-6, 'MAX_iter', 300000, 'nv', varEst, ...
                           'iniAlpha', iniAlpha_Pdg);
 %     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'MaxIL', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
 %                           'iniAlpha', 200*ones(Q,1));
     
-    alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    [alpha, AugObjEval, OriObjEval] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 
     
 elseif Opt_method == 0
