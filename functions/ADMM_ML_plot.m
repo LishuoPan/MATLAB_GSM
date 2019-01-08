@@ -18,6 +18,7 @@ tic
     I_Matrix = eye(n);
     AugObjEval = zeros(options.MAX_iter,1);
     OriObjEval = zeros(options.MAX_iter,1);
+    Gap = zeros(options.MAX_iter,1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,6 +38,7 @@ tic
     for i= 1:options.MAX_iter
         AugObjEval(i) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
         OriObjEval(i) = ML_obj(C_k, ytrain);
+        Gap(i) = norm(S_k*C_k - I_Matrix,'fro');
         %%%%%%%%%%%%%%%%%%%%
         % S update
         %%%%%%%%%%%%%%%%%%%%
