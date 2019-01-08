@@ -55,8 +55,10 @@ if Opt_method == 1
 %     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'MaxIL', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
 %                           'iniAlpha', 200*ones(Q,1));
     
-    [alpha, AugObjEval, OriObjEval] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-
+    [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    figure;plot(AugObjEval(1:options_ADMM.MAX_iter));
+    figure;plot(OriObjEval(1:options_ADMM.MAX_iter));
+    figure;plot(Gap(1:options_ADMM.MAX_iter));
     
 elseif Opt_method == 0
     % DCP Opt
