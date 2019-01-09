@@ -56,9 +56,9 @@ if Opt_method == 1
 %                           'iniAlpha', 200*ones(Q,1));
     
     [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-    figure;plot(AugObjEval(1:options_ADMM.MAX_iter));title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
-    figure;plot(OriObjEval(1:options_ADMM.MAX_iter));title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
-    figure;plot(Gap(1:options_ADMM.MAX_iter));title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
+    figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
+    figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
+    figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
     
 elseif Opt_method == 0
     % DCP Opt
@@ -97,10 +97,12 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 30, 'rho_dual', 10, 'MaxIL', 500, 'mu', 1e-7, 'MAX_iter', 50000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 200, 'rho_dual', 100, 'MaxIL', 300, 'mu', 1e-6, 'MAX_iter', 500000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP);
-    
-    alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
+    figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
+    figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
     
 end
 

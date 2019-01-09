@@ -16,9 +16,9 @@ tic
     Q = numel(K);
     n = length(ytrain);
     I_Matrix = eye(n);
-    AugObjEval = zeros(options.MAX_iter,1);
-    OriObjEval = zeros(options.MAX_iter,1);
-    Gap = zeros(options.MAX_iter,1);
+    AugObjEval = zeros(options.MAX_iter+1,1);
+    OriObjEval = zeros(options.MAX_iter+1,1);
+    Gap = zeros(options.MAX_iter+1,1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -69,6 +69,9 @@ tic
         if diff_alpha < 0.001
             disp('Optimal Alpha Found.');
             AlphaReturn = Alpha_k;
+            AugObjEval(i+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);AugObjEval = AugObjEval(1:i+1);
+            OriObjEval(i+1) = ML_obj(C_k, ytrain);OriObjEval = OriObjEval(1:i+1);
+            Gap(i+1) = norm(S_k*C_k - I_Matrix,'fro');Gap = Gap(1:i+1);
             return
         end
         
@@ -99,7 +102,9 @@ tic
         % end of Print
         %%%%%%%%%%%%%%%%%%%%
     end
-
+    AugObjEval(options.MAX_iter+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+    OriObjEval(options.MAX_iter+1) = ML_obj(C_k, ytrain);
+    Gap(options.MAX_iter+1) = norm(S_k*C_k - I_Matrix,'fro');
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
     AlphaReturn = Alpha_k;
