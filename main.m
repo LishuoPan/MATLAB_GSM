@@ -56,9 +56,9 @@ if Opt_method == 1
 %                           'iniAlpha', 200*ones(Q,1));
     
     [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-    figure;plot(AugObjEval(1:options_ADMM.MAX_iter));
-    figure;plot(OriObjEval(1:options_ADMM.MAX_iter));
-    figure;plot(Gap(1:options_ADMM.MAX_iter));
+    figure;plot(AugObjEval(1:options_ADMM.MAX_iter));title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
+    figure;plot(OriObjEval(1:options_ADMM.MAX_iter));title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
+    figure;plot(Gap(1:options_ADMM.MAX_iter));title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
     
 elseif Opt_method == 0
     % DCP Opt
