@@ -5,7 +5,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'unemployment';
+file_name = 'electricitydata';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
@@ -39,7 +39,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -59,7 +59,7 @@ if Opt_method == 1
     figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
     figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
     figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
-    
+    figure;bar(alpha);title('alpha after ADMM');xlabel('index');ylabel('alpha value');
 elseif Opt_method == 0
     % DCP Opt
     Phi = eye(nTrain);
