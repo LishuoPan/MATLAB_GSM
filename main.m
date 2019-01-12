@@ -5,7 +5,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'electricitydata';
+file_name = 'unemployment';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
@@ -39,7 +39,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -97,13 +97,13 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 200, 'rho_dual', 100, 'MaxIL', 300, 'mu', 1e-6, 'MAX_iter', 500000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 500, 'rho_dual', 300, 'MaxIL', 300, 'mu', 1e-6, 'MAX_iter', 30000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP);
     [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
     figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
     figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
     figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
-    
+    figure;bar(alpha);title('alpha after ADMM');xlabel('index');ylabel('alpha value');
 end
 
 if Opt_method == 2

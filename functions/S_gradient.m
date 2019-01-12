@@ -11,7 +11,7 @@ function S_g = S_gradient(ytrain, S, L, C, rho)
     eye_M = eye(n);
     rank_one = ytrain * ytrain';
     indicator = norm(S*C-eye_M,'fro');
-    delta = inf;
+    delta = 1;
     if indicator > delta
         psi = S*C;
         zeta = -rho*eye_M + L + rho*psi;
