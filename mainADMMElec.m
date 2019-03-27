@@ -4,7 +4,7 @@ addpath('./functions/l1_ls_matlab')
 addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
-% read in data & some general setup
+% Read in data & some general setup
 file_name = 'electricitydata';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
@@ -13,8 +13,8 @@ nTest = 20;
 varEst = evar(ytrain);
 
 
-% generate GSM kernels
-% setting part: options for generate; activate nystrom.
+% Generate GSM kernels
+% Setting part: options for generate; activate nystrom.
 Nystrom_activate = 0; % 0 for deactivate nystrom, 1 for activate nystrom
 
 %Sampling method: 0 represents fixed grids, 1 represents random.
@@ -39,11 +39,7 @@ else
 end
 
 % Hyperpara Opt
-% ADMM ML Opt
-    % method for gradient descent:
-    % 0 for original(include inv(S))
-    % 1 for approximate(c_k replace inv(S))
-    % 2 for further approximate(S_k*c_k=I)
+
 % IniAlpha obtained from Periodogram Method Estimation
 [iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
 
@@ -54,7 +50,7 @@ options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MA
                       'iniAlpha', iniAlpha_Pdg);
 % ADMM step
 [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-% plots of convergence criteria
+% Plots of convergence criteria
 figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
 figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
 figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');

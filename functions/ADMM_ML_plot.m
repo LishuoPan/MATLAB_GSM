@@ -16,6 +16,7 @@ tic
     Q = numel(K);
     n = length(ytrain);
     I_Matrix = eye(n);
+    % convergence criteria
     AugObjEval = zeros(options.MAX_iter+1,1);
     OriObjEval = zeros(options.MAX_iter+1,1);
     Gap = zeros(options.MAX_iter+1,1);
@@ -102,6 +103,7 @@ tic
         % end of Print
         %%%%%%%%%%%%%%%%%%%%
     end
+    % record the convergence criteria
     AugObjEval(options.MAX_iter+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
     OriObjEval(options.MAX_iter+1) = ML_obj(C_k, ytrain);
     Gap(options.MAX_iter+1) = norm(S_k*C_k - I_Matrix,'fro');

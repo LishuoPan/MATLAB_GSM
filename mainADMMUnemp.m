@@ -4,7 +4,7 @@ addpath('./functions/l1_ls_matlab')
 addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
-% read in data & some general setup
+% Read in data & some general setup
 file_name = 'unemployment';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
@@ -13,8 +13,8 @@ nTest = 20;
 varEst = evar(ytrain);
 
 
-% generate GSM kernels
-% setting part: options for generate; activate nystrom.
+% Generate GSM kernels
+% Setting part: options for generate; activate nystrom.
 Nystrom_activate = 0; % 0 for deactivate nystrom, 1 for activate nystrom
 
 %Sampling method: 0 represents fixed grids, 1 represents random.
@@ -62,19 +62,19 @@ options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MA
                       'iniAlpha', alpha_DCP);
 % ADMM step
 [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-% plot the convergence criteria
+% Plot the convergence criteria
 figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
 figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
 figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
 figure;bar(alpha);title('alpha after ADMM');xlabel('index');ylabel('alpha value');
 
 
-% prediction
+% Prediction
 [pMean_final, pVar_final] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
 MSE_final = mean((pMean_final-ytest(1:nTest)).^2);
 
 
-% plot phase
+% Plot phase
 figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
 plot_save_compare(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName,file_name);
 
