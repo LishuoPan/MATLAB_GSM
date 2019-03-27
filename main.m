@@ -5,7 +5,7 @@ addpath('./data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % read in data & some general setup
-file_name = 'passengerdata';
+file_name = 'unemployment';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
@@ -20,8 +20,8 @@ Nystrom_activate = 0; % 0 for deactivate nystrom, 1 for activate nystrom
 %Sampling method: 0 represents fixed grids, 1 represents random.
 options_gen = struct('freq_lb', 0, 'freq_ub', 0.5, ...
                  'var_lb', 0, 'var_ub', 16 / (max(xtrain) - min(xtrain)), ...
-                 'Q', 300, ...
-                 'nFreqCand', 300, 'nVarCand', 1, ...
+                 'Q', 500, ...
+                 'nFreqCand', 500, 'nVarCand', 1, ...
                  'fix_var', 0.001, 'sampling', 0 );
 
 [freq, var, Q] = generateGSM(options_gen); % the length of freq or var is Q we need
@@ -39,7 +39,7 @@ else
 end
 
 % Hyperpara Opt
-Opt_method = 1;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
+Opt_method = 2;% 0 for DCP; 1 for ADMM; 2 for DCP&ADMM
 
 if Opt_method == 1
     % ADMM ML Opt
@@ -50,14 +50,16 @@ if Opt_method == 1
     [iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-6, 'MAX_iter', 2000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
                           'iniAlpha', iniAlpha_Pdg);
-%     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
+%     options_ADMM = struct('rho', 100, 'rho_dual', 1, 'MaxIL', 300, 'mu', 1e-7, 'MAX_iter', 5000, 'nv', varEst, ...
 %                           'iniAlpha', 200*ones(Q,1));
     
-    alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-
-    
+    [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
+    figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
+    figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
+    figure;bar(alpha);title('alpha after ADMM');xlabel('index');ylabel('alpha value');
 elseif Opt_method == 0
     % DCP Opt
     Phi = eye(nTrain);
@@ -95,11 +97,13 @@ elseif Opt_method == 2
 %     plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
 
     % ADMM ML Opt
-    options_ADMM = struct('rho', 100, 'rho_dual', 1, 'inner_loop', 300, 'mu', 1e-7, 'MAX_iter', 2000, 'nv', varEst, ...
+    options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 30000, 'nv', varEst, ...
                           'iniAlpha', alpha_DCP);
-    
-    alpha = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
-    
+    [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+    figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
+    figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
+    figure;plot(Gap);title('Iterations v.s. Gap');xlabel('iterations');ylabel('Gap');
+    figure;bar(alpha);title('alpha after ADMM');xlabel('index');ylabel('alpha value');
 end
 
 if Opt_method == 2

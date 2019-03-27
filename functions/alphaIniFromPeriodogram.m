@@ -34,7 +34,7 @@ end
 %routine. 
 
 %Algorithm setup
-lambda = 0.01;      % regularization parameter (can be tuned)
+lambda = 1000;      % regularization parameter (can be tuned)
 rel_tol = 10;     % relative target duality gap (can be tuned)
 
 [iniAlpha,status]=l1_ls(Psi,pyy',lambda,rel_tol);

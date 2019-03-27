@@ -1,4 +1,4 @@
-function AlphaReturn = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
+function [AlphaReturn, AugObjEval, OriObjEval, Gap] = ADMM_ML_plot(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
 %ADMM_ML ADMM framework for MLK Optimization
 %   Input class support:
 %       ytrain: training y, column vector;
@@ -16,7 +16,9 @@ tic
     Q = numel(K);
     n = length(ytrain);
     I_Matrix = eye(n);
-
+    AugObjEval = zeros(options.MAX_iter+1,1);
+    OriObjEval = zeros(options.MAX_iter+1,1);
+    Gap = zeros(options.MAX_iter+1,1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,31 +32,18 @@ tic
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % display info
     disp(['Solver: ADMM      ','rho = ',num2str(options.rho), ...
-        '  dual rho = ',num2str(options.rho_dual),'  inner loop:',int2str(options.inner_loop)]);
+        '  dual rho = ',num2str(options.rho_dual),'  inner loop:',int2str(options.MaxIL)]);
     disp('It.     Objective       MSE       norm2diff_alpha     time     L')
 
     for i= 1:options.MAX_iter
-
+        AugObjEval(i) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+        OriObjEval(i) = ML_obj(C_k, ytrain);
+        Gap(i) = norm(S_k*C_k - I_Matrix,'fro');
         %%%%%%%%%%%%%%%%%%%%
         % S update
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
-        for ii=1:options.inner_loop
-            % compute normalized S gradient & update S
-            Sg = S_gradient(ytrain, S_k, L_k, C_k, options.rho);
-            d = -(Sg/norm(Sg,'fro'));
-            %Armijo Rule
-            [step,goodness] = ...
-                ArmijoStep(ytrain, S_k, L_k, C_k, options.rho, Sg(:), d(:));
-            Z = S_k + step * d;
-            % Inner loop stopping criteria
-            if norm(Z-S_k,'fro')<(1e-2)*options.mu
-                S_k = Z;
-                break
-            end
-            % return S_k
-            S_k = Z;
-        end
+        S_k = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
 
         % display S matrix Non-PD info
         [~,PD] = chol(S_k);
@@ -80,6 +69,9 @@ tic
         if diff_alpha < 0.001
             disp('Optimal Alpha Found.');
             AlphaReturn = Alpha_k;
+            AugObjEval(i+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);AugObjEval = AugObjEval(1:i+1);
+            OriObjEval(i+1) = ML_obj(C_k, ytrain);OriObjEval = OriObjEval(1:i+1);
+            Gap(i+1) = norm(S_k*C_k - I_Matrix,'fro');Gap = Gap(1:i+1);
             return
         end
         
@@ -110,7 +102,9 @@ tic
         % end of Print
         %%%%%%%%%%%%%%%%%%%%
     end
-
+    AugObjEval(options.MAX_iter+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+    OriObjEval(options.MAX_iter+1) = ML_obj(C_k, ytrain);
+    Gap(options.MAX_iter+1) = norm(S_k*C_k - I_Matrix,'fro');
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
     AlphaReturn = Alpha_k;

@@ -62,7 +62,7 @@ function [x,status,history] = l1_ls(A,varargin)
 
 % IPM PARAMETERS
 MU              = 2;        % updating parameter of t
-MAX_NT_ITER     = 4000;      % maximum IPM (Newton) iteration
+MAX_NT_ITER     = 400;      % maximum IPM (Newton) iteration
 
 % LINE SEARCH PARAMETERS
 ALPHA           = 0.01;     % minimum fraction of decrease in the objective
