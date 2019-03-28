@@ -1,11 +1,11 @@
 clc;clear;
-addpath('./data')
-addpath('./functions')
+addpath('../data')
+addpath('../functions')
 
-%Mosek setup
-javaaddpath('C:\Program Files\Mosek\8\tools\platform\win64x86\bin/mosekmatlab.jar')
-addpath('C:\Program Files\Mosek\8\toolbox\r2014a')
-%addpath ~/mosek/8/toolbox/r2014a
+% Mosek setup
+% javaaddpath('C:\Program Files\Mosek\8\tools\platform\win64x86\bin/mosekmatlab.jar')
+% addpath('C:\Program Files\Mosek\8\toolbox\r2014a')
+addpath ~/mosek/8/toolbox/r2014a
 
 % Read in data & some general setup
 file_name = 'electricitydata';

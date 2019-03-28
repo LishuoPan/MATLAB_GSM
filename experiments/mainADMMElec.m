@@ -2,6 +2,9 @@ clc;clear;
 addpath('../functions')
 addpath('../functions/l1_ls_matlab')
 addpath('../data')
+% Mosek setup
+% javaaddpath('C:\Program Files\Mosek\8\tools\platform\win64x86\bin/mosekmatlab.jar')
+% addpath('C:\Program Files\Mosek\8\toolbox\r2014a')
 addpath ~/mosek/8/toolbox/r2014a
 
 % Read in data & some general setup
