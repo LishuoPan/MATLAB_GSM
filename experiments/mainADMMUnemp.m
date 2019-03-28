@@ -45,7 +45,7 @@ end
 
 % 1-step DCP Opt
 Phi = eye(nTrain);
-iniAlpha = ini_Alpha('fix', 0, Q, ytrain, K);
+iniAlpha = ini_Alpha(0, 0, Q, ytrain, K);
 % DCP settings
 options_DCP = struct('verbose',1,'ev',false, ...
                  'nv',varEst, ...
