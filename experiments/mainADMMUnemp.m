@@ -78,7 +78,7 @@ MSE_final = mean((pMean_final-ytest(1:nTest)).^2);
 
 
 % Plot phase
-figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
+figName = ['../fig/Temp',file_name,'Q',int2str(Q)];
 plot_save_compare(xtrain,ytrain,xtest,ytest,nTest,pMean_DCP,pVar_DCP,pMean_final,figName,file_name);
 
 

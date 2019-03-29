@@ -63,7 +63,7 @@ figure;bar(alpha);title('alpha after ADMM');xlabel('index');ylabel('alpha value'
 % Prediction and plot phase
 [pMean, pVar] = prediction(xtrain,xtest,ytrain,nTest,alpha,varEst,freq,var,K);
 MSE = mean((pMean-ytest(1:nTest)).^2);
-figName = ['./fig/Temp',file_name,'Q',int2str(Q)];
+figName = ['../fig/Temp',file_name,'Q',int2str(Q)];
 plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName,file_name);
 
 
