@@ -63,11 +63,11 @@ time_record = toc;
 
 % Plot and save figure
 sampling = cell(1,2); sampling{1}='fixed'; sampling{2}='random';sample_method = sampling{options_gen.sampling+1};
-figName = ['./fig/',file_name,'_',sample_method,'_Q',int2str(Q),'.fig'];
-plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName);
+figName = ['../fig/',file_name,'_',sample_method,'_Q',int2str(Q),'.fig'];
+plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName,file_name);
 
 % Record MSE
 MSE = mean((pMean-ytest(1:nTest)).^2);
 
 % Save info
-save(['./fig/',file_name,'_',sample_method,'_Q',int2str(Q),'.mat'], 'MSE', 'info','time_record');
+save(['../fig/',file_name,'_',sample_method,'_Q',int2str(Q),'.mat'], 'MSE', 'info','time_record');
