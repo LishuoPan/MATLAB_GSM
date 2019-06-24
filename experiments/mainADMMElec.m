@@ -51,6 +51,19 @@ end
 % MAX_iter: numbers of total outer iterations.
 options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
                       'iniAlpha', iniAlpha_Pdg);
+% Pre-Training
+% Find Winning Tickets
+PruneIters = 7;
+PruneRate = 0.2;
+SubTrainIters = 100;
+musk = WinningTicket(PruneIters, PruneRate, SubTrainIters, ...
+                     xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+% musk the initial Alpha in the options_ADMM and K.
+options_ADMM.iniAlpha = options_ADMM.iniAlpha(musk);
+K = K(musk);
+freq = freq(musk);
+var = var(musk);
+% Actual-Training
 % ADMM step
 [alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 % Plots of convergence criteria
