@@ -53,9 +53,9 @@ options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MA
                       'iniAlpha', iniAlpha_Pdg);
 % Pre-Training
 % Find Winning Tickets
-PruneIters = 7;
+PruneIters = 2;
 PruneRate = 0.2;
-SubTrainIters = 100;
+SubTrainIters = 1000;
 musk = WinningTicket(PruneIters, PruneRate, SubTrainIters, ...
                      xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 % musk the initial Alpha in the options_ADMM and K.
