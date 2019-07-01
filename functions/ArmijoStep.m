@@ -1,10 +1,10 @@
 function [step,goodness] = ArmijoStep(ytrain, S, L, C, rho, Sg_vec, d_vec)
 %% Armijo Rule find the step size
-    s = 1e-4;
+    s = 1;
     n = length(ytrain);
-    beta = 1/5;
+    beta = 1/2;
     sigma = 1e-5;
-    SearchMax = 100;
+    SearchMax = 10000;
     d = reshape(d_vec,[n,n]);
     % strat search
     for i = 0:SearchMax

@@ -44,16 +44,18 @@ end
 % Hyperpara Opt
 
 % IniAlpha obtained from Periodogram Method Estimation
-[iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
+% [iniAlpha_Pdg, goodness] = alphaIniFromPeriodogram(ytrain, Q, freq, var(1));
 
 % ADMM settings
 % MaxIL: numbers of Internal iteraions in gradient method; 
 % MAX_iter: numbers of total outer iterations.
+% options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
+%                       'iniAlpha', iniAlpha_Pdg);
 options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
-                      'iniAlpha', iniAlpha_Pdg);
+                      'iniAlpha', ones(Q,1));
 % Pre-Training
 % Find Winning Tickets
-PruneIters = 2;
+PruneIters = 0;
 PruneRate = 0.2;
 SubTrainIters = 1000;
 musk = WinningTicket(PruneIters, PruneRate, SubTrainIters, ...
