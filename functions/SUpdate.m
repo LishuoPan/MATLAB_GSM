@@ -1,4 +1,4 @@
-function SReturn = SUpdate(ytrain, S, L, C, rho, MaxIL)
+function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
     % Setting Parameters
     epsilon = 1e-15;
     n = length(ytrain);
@@ -15,6 +15,7 @@ function SReturn = SUpdate(ytrain, S, L, C, rho, MaxIL)
     step = 0;
     
     for ii=1:MaxIL
+        SSubIter = ii;
         %%%%%%%%%%%%%%%%%%%%
         % Gradient Direction
         %%%%%%%%%%%%%%%%%%%%
