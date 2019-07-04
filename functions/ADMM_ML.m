@@ -1,4 +1,4 @@
-function [AlphaReturn, AugObjEval, OriObjEval, Gap, SSubIterList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
+function [AlphaReturn, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, MSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
 %ADMM_ML ADMM framework for MLK Optimization
 %   Input class support:
 %       ytrain: training y, column vector;
@@ -20,7 +20,10 @@ tic
     AugObjEval = zeros(options.MAX_iter+1,1);
     OriObjEval = zeros(options.MAX_iter+1,1);
     Gap = zeros(options.MAX_iter+1,1);
+    % Record important information
     SSubIterList = zeros(options.MAX_iter,1);
+    TimeList = zeros(options.MAX_iter+1,1);
+    MSEList = zeros(options.MAX_iter+1,1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,6 +44,11 @@ tic
         AugObjEval(i) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
         OriObjEval(i) = ML_obj(C_k, ytrain);
         Gap(i) = norm(S_k*C_k - I_Matrix,'fro');
+        % The following 3 lines are for record use. Should not be in the
+        % final version of the code.
+        TimeList(i) = toc;
+        [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+        MSEList(i) = mean((pMean-ytest(1:nTest)).^2);
         %%%%%%%%%%%%%%%%%%%%
         % S update
         %%%%%%%%%%%%%%%%%%%%
@@ -87,7 +95,7 @@ tic
         % Print Report
         %%%%%%%%%%%%%%%%%%%%
         % report every 100 iterations.
-        if rem(i,10)==0
+        if rem(i,100)==0
             % prediction & report the MSE
             [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
@@ -112,6 +120,10 @@ tic
     AugObjEval(options.MAX_iter+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
     OriObjEval(options.MAX_iter+1) = ML_obj(C_k, ytrain);
     Gap(options.MAX_iter+1) = norm(S_k*C_k - I_Matrix,'fro');
+    % 3 lines for the record use. Should not be in the final version
+    TimeList(options.MAX_iter+1) = toc;
+    [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+    MSEList(options.MAX_iter+1) = mean((pMean-ytest(1:nTest)).^2);
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
     AlphaReturn = Alpha_k;

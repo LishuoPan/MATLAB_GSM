@@ -51,7 +51,7 @@ end
 % MAX_iter: numbers of total outer iterations.
 % options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
 %                       'iniAlpha', iniAlpha_Pdg);
-options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
+options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 1000, 'nv', varEst, ...
                       'iniAlpha', ones(Q,1));
 % Pre-Training
 % Find Winning Tickets
@@ -67,7 +67,7 @@ freq = freq(musk);
 var = var(musk);
 % Actual-Training
 % ADMM step
-[alpha, AugObjEval, OriObjEval, Gap, SSubIterList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+[alpha, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, MSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 % Plots of convergence criteria
 figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
 figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
