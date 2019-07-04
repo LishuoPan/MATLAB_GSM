@@ -10,7 +10,7 @@ function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
 %     StepMethod = 'Diminish';
     
     % Set initial(fake) Direction & Step to start the Algorithm
-    Sg = 0;
+    NAGGrad = 0;
     d_vec = zeros(n*n,1);
     step = 0;
     
@@ -27,16 +27,19 @@ function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
             Sg_vec = Sg(:);
             d_vec = -(Sg_vec/norm(Sg_vec));
         elseif strcmp(GradientMethod, 'NAG')
+            % Save the Sg_vec for Armijo Use
+            Sg = S_gradient(ytrain, S, L, C, rho);
+            Sg_vec = Sg(:);
             % Reform the d_vec into matrix
             d = reshape(d_vec,[n,n]);
             % Compute the NAG gradient. Note that the d is descent
             % direction. g = -d.
             SNAGNext = S + step*DecayRate*d;
-            Sg = DecayRate*Sg + S_gradient(ytrain, SNAGNext, L, C, rho);
+            NAGGrad = DecayRate*NAGGrad + S_gradient(ytrain, SNAGNext, L, C, rho);
             % Reform the gradient into a vector, and normalize it. d_vec is
             % descent direction (nagetive of gradient)
-            Sg_vec = Sg(:);
-            d_vec = -(Sg_vec/norm(Sg_vec));
+            NAGGrad_vec = NAGGrad(:);
+            d_vec = -(NAGGrad_vec/norm(NAGGrad_vec));
         end  
         %%%%%%%%%%%%%%%%%%%%
         % Step Size
