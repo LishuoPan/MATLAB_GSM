@@ -54,6 +54,9 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
         [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
+        if SSubIter == options.MaxIL
+            disp('S update reach MaxIL')
+        end
         SSubIterList(i) = SSubIter;
         % display S matrix Non-PD info
         [~,PD] = chol(S_k);
@@ -95,7 +98,7 @@ tic
         % Print Report
         %%%%%%%%%%%%%%%%%%%%
         % report every 100 iterations.
-        if rem(i,100)==0
+        if rem(i,10)==0
             % prediction & report the MSE
             [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);

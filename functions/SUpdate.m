@@ -1,6 +1,6 @@
 function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
     % Setting Parameters
-    epsilon = 1e-15;
+    epsilon = 1e-20;
     n = length(ytrain);
     DecayRate = 0.98;
     % Set the gradient descent method
