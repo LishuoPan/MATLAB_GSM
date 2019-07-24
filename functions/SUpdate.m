@@ -1,7 +1,8 @@
-function SReturn = SUpdate(ytrain, S, L, C, rho, MaxIL)
+function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
     epsilon = 1e-15;
     n = length(ytrain);
     for ii=1:MaxIL
+        SSubIter = ii;
         % compute normalized S gradient & update S
         Sg = S_gradient(ytrain, S, L, C, rho);
         Sg_vec = Sg(:);

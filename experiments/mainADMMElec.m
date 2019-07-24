@@ -65,7 +65,7 @@ freq = freq(musk);
 var = var(musk);
 % Actual-Training
 % ADMM step
-[alpha, AugObjEval, OriObjEval, Gap] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+[alpha, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, MSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 % Plots of convergence criteria
 figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
 figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
