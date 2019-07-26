@@ -1,4 +1,4 @@
-function [AlphaReturn, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, MSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
+function [AlphaReturn, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, TestMSEList,TrainMSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options)
 %ADMM_ML ADMM framework for MLK Optimization
 %   Input class support:
 %       ytrain: training y, column vector;
@@ -23,7 +23,8 @@ tic
     % Record important information
     SSubIterList = zeros(options.MAX_iter,1);
     TimeList = zeros(options.MAX_iter+1,1);
-    MSEList = zeros(options.MAX_iter+1,1);
+    TestMSEList = zeros(options.MAX_iter+1,1);
+    TrainMSEList = zeros(options.MAX_iter+1,1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -47,8 +48,10 @@ tic
         % The following 3 lines are for record use. Should not be in the
         % final version of the code.
         TimeList(i) = toc;
-        [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
-        MSEList(i) = mean((pMean-ytest(1:nTest)).^2);
+        [pTestMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+        [pTrainMean, ~] = prediction(xtrain,xtrain,ytrain,length(xtrain),Alpha_k,varEst,freq,var,K);
+        TestMSEList(i) = mean((pTestMean-ytest(1:nTest)).^2);
+        TrainMSEList(i) = mean((pTrainMean-ytrain).^2);
         %%%%%%%%%%%%%%%%%%%%
         % S update
         %%%%%%%%%%%%%%%%%%%%
@@ -97,8 +100,8 @@ tic
         % report every 100 iterations.
         if rem(i,100)==0
             % prediction & report the MSE
-            [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
-            MSE = mean((pMean-ytest(1:nTest)).^2);
+            [pTestMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+            TestMSE = mean((pTestMean-ytest(1:nTest)).^2);
             % plot
 %             figName = './fig/ADMM_Temp';
 %             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
@@ -108,7 +111,7 @@ tic
             disp([sprintf('%-4d',i),'   ', ...
                   sprintf('%0.4e',AugObjPrint),'    ', ...
                   sprintf('%0.4e',OriObjPrint),'    ', ...
-                  sprintf('%0.4e',MSE), '    ', ...
+                  sprintf('%0.4e',TestMSE), '    ', ...
                   sprintf('%0.4e',diff_alpha), '         ', ...
                   sprintf('%-.2f',toc), '    ', ...
                   sprintf('%0.4e',norm(L_k,'fro')^2)]);
@@ -122,8 +125,10 @@ tic
     Gap(options.MAX_iter+1) = norm(S_k*C_k - I_Matrix,'fro');
     % 3 lines for the record use. Should not be in the final version
     TimeList(options.MAX_iter+1) = toc;
-    [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
-    MSEList(options.MAX_iter+1) = mean((pMean-ytest(1:nTest)).^2);
+    [pTestMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+    [pTrainMean, ~] = prediction(xtrain,xtrain,ytrain,length(xtrain),Alpha_k,varEst,freq,var,K);
+    TestMSEList(options.MAX_iter+1) = mean((pTestMean-ytest(1:nTest)).^2);
+    TrainMSEList(i) = mean((pTrainMean-ytrain).^2);
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
     AlphaReturn = Alpha_k;
