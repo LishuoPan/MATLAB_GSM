@@ -128,7 +128,7 @@ tic
     [pTestMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
     [pTrainMean, ~] = prediction(xtrain,xtrain,ytrain,length(xtrain),Alpha_k,varEst,freq,var,K);
     TestMSEList(options.MAX_iter+1) = mean((pTestMean-ytest(1:nTest)).^2);
-    TrainMSEList(i) = mean((pTrainMean-ytrain).^2);
+    TrainMSEList(options.MAX_iter+1) = mean((pTrainMean-ytrain).^2);
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
     AlphaReturn = Alpha_k;
