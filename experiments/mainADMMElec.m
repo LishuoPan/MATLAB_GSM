@@ -53,7 +53,7 @@ options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MA
                       'iniAlpha', iniAlpha_Pdg);
 % Pre-Training
 % Find Winning Tickets
-PruneIters = 2;
+PruneIters = 0;
 PruneRate = 0.2;
 SubTrainIters = 1000;
 musk = WinningTicket(PruneIters, PruneRate, SubTrainIters, ...
@@ -65,7 +65,7 @@ freq = freq(musk);
 var = var(musk);
 % Actual-Training
 % ADMM step
-[alpha, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, MSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
+[alpha, AugObjEval, OriObjEval, Gap, SSubIterList, TimeList, TestMSEList,TrainMSEList] = ADMM_ML(xtrain,xtest,ytrain,ytest,nTest,varEst,freq,var,K,options_ADMM);
 % Plots of convergence criteria
 figure;plot(AugObjEval);title('Iterations v.s. Augmanted Objective');xlabel('iterations');ylabel('Aug Obj');
 figure;plot(OriObjEval);title('Iterations v.s. Original Objective');xlabel('iterations');ylabel('Original Obj');
