@@ -8,7 +8,7 @@ addpath('../data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % Read in data & some general setup
-file_name = 'passengerdata';
+file_name = 'electricitydata';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);

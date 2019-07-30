@@ -27,11 +27,15 @@ tic
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % initialization
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    Alpha_k = options.iniAlpha;
-    L_k = I_Matrix;
-    C_k = C_matrix(Alpha_k, K, options.nv, I_Matrix);
-    S_k = inv(C_k);
+    AlphaSlow = options.iniAlpha;
+    LSlow = I_Matrix;
+    CSlow = C_matrix(AlphaSlow, K, options.nv, I_Matrix);
+    SSlow = inv(CSlow);
 
+    % Lookahead parameter
+    k = 5;
+    gamma = 0.5;
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % START ADMM ITERATIONS
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,58 +45,83 @@ tic
     disp('It.    AugObj        OriObj        MSE           norm2diff_alpha    time    L')
 
     for i= 1:options.MAX_iter
-        AugObjEval(i) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
-        OriObjEval(i) = ML_obj(C_k, ytrain);
-        Gap(i) = norm(S_k*C_k - I_Matrix,'fro');
+        AugObjEval(i) = AugObj(ytrain, SSlow, LSlow, CSlow, options.rho);
+        OriObjEval(i) = ML_obj(CSlow, ytrain);
+        Gap(i) = norm(SSlow*CSlow - I_Matrix,'fro');
         % The following 3 lines are for record use. Should not be in the
         % final version of the code.
         TimeList(i) = toc;
-        [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+        [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,AlphaSlow,varEst,freq,var,K);
         MSEList(i) = mean((pMean-ytest(1:nTest)).^2);
-        %%%%%%%%%%%%%%%%%%%%
-        % S update
-        %%%%%%%%%%%%%%%%%%%%
-        % gradient descent update
-        [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
-        if SSubIter == options.MaxIL
-            disp('S update reach MaxIL')
-        end
-        SSubIterList(i) = SSubIter;
-        % display S matrix Non-PD info
-        [~,PD] = chol(S_k);
-        if PD ~= 0
-            disp('Warning: S matrix is Non-PD, this may lead to failure');
-        end
+        
+        % Synchronize FastVar with SlowVar.
+        S_k = SSlow;
+        Alpha_k = AlphaSlow;
+        L_k = LSlow;
+        C_k = CSlow;
+        
+        for LAIter = 1:k
+            %%%%%%%%%%%%%%%%%%%%
+            % S update
+            %%%%%%%%%%%%%%%%%%%%
+            % gradient descent update
+            [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
+            if SSubIter == options.MaxIL
+                disp('S update reach MaxIL')
+            end
+            disp(SSubIter);
+    %         SSubIterList(i) = SSubIter;
+            % display S matrix Non-PD info
+            [~,PD] = chol(S_k);
+            if PD ~= 0
+                disp('Warning: S matrix is Non-PD, this may lead to failure');
+            end
 
-        %%%%%%%%%%%%%%%%%%%%
-        % alpha update
-        %%%%%%%%%%%%%%%%%%%%
-        LastAlpha = Alpha_k;
-        for ii=1:Q
-            % pre-calculate O(n^3)
-            ske = S_k*K{ii};
-            sc = S_k*C_k;
-            OldAlphaii = Alpha_k(ii);
-            Alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, OldAlphaii));
-            % update new C_k
-            C_k = C_k - OldAlphaii*K{ii} + Alpha_k(ii)*K{ii};
+            %%%%%%%%%%%%%%%%%%%%
+            % alpha update
+            %%%%%%%%%%%%%%%%%%%%
+            for ii=1:Q
+                % pre-calculate O(n^3)
+                ske = S_k*K{ii};
+                sc = S_k*C_k;
+                OldAlphaii = Alpha_k(ii);
+                Alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, OldAlphaii));
+                % update new C_k
+                C_k = C_k - OldAlphaii*K{ii} + Alpha_k(ii)*K{ii};
+            end
+
+
+
+            %%%%%%%%%%%%%%%%%%%%
+            % L update
+            %%%%%%%%%%%%%%%%%%%%
+            % Close form update L. Use a smaller dual coefficient
+            L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+        
         end
-        diff_alpha = norm(LastAlpha-Alpha_k);
+        
+        % interpolation to generate new Variables into Z
+        SZ = SSlow + gamma*(S_k - SSlow);
+        AlphaZ = AlphaSlow + gamma*(Alpha_k - AlphaSlow);
+        LZ = LSlow + gamma*(L_k - LSlow);
+        CZ = C_matrix(AlphaZ, K, options.nv, I_Matrix);
+        
         % stopping criteria
+        diff_alpha = norm(AlphaZ - AlphaSlow);
         if diff_alpha < 0.001
             disp('Optimal Alpha Found.');
-            AlphaReturn = Alpha_k;
-            AugObjEval(i+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);AugObjEval = AugObjEval(1:i+1);
-            OriObjEval(i+1) = ML_obj(C_k, ytrain);OriObjEval = OriObjEval(1:i+1);
-            Gap(i+1) = norm(S_k*C_k - I_Matrix,'fro');Gap = Gap(1:i+1);
+            AlphaReturn = AlphaZ;
+            AugObjEval(i+1) = AugObj(ytrain, SZ, LZ, CZ, options.rho);AugObjEval = AugObjEval(1:i+1);
+            OriObjEval(i+1) = ML_obj(CZ, ytrain);OriObjEval = OriObjEval(1:i+1);
+            Gap(i+1) = norm(SZ*CZ - I_Matrix,'fro');Gap = Gap(1:i+1);
             return
         end
         
-        %%%%%%%%%%%%%%%%%%%%
-        % L update
-        %%%%%%%%%%%%%%%%%%%%
-        % Close form update L. Use a smaller dual coefficient
-        L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+        % let Z be the new Variables
+        SSlow = SZ;
+        AlphaSlow = AlphaZ;
+        LSlow = LZ;
+        CSlow = CZ;
         
         %%%%%%%%%%%%%%%%%%%%
         % Print Report
@@ -102,34 +131,33 @@ tic
             % prediction & report the MSE
             [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
-            % plot
-%             figName = './fig/ADMM_Temp';
-%             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
 
-            OriObjPrint = ML_obj(C_k, ytrain);
-            AugObjPrint = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+            OriObjPrint = ML_obj(CSlow, ytrain);
+            AugObjPrint = AugObj(ytrain, SSlow, LSlow, CSlow, options.rho);
             disp([sprintf('%-4d',i),'   ', ...
                   sprintf('%0.4e',AugObjPrint),'    ', ...
                   sprintf('%0.4e',OriObjPrint),'    ', ...
                   sprintf('%0.4e',MSE), '    ', ...
                   sprintf('%0.4e',diff_alpha), '         ', ...
                   sprintf('%-.2f',toc), '    ', ...
-                  sprintf('%0.4e',norm(L_k,'fro')^2)]);
+                  sprintf('%0.4e',norm(LSlow,'fro')^2)]);
         end
         % end of Print
         %%%%%%%%%%%%%%%%%%%%
+        
     end
+    
     % record the convergence criteria
-    AugObjEval(options.MAX_iter+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);
-    OriObjEval(options.MAX_iter+1) = ML_obj(C_k, ytrain);
-    Gap(options.MAX_iter+1) = norm(S_k*C_k - I_Matrix,'fro');
+    AugObjEval(options.MAX_iter+1) = AugObj(ytrain, SSlow, LSlow, CSlow, options.rho);
+    OriObjEval(options.MAX_iter+1) = ML_obj(CSlow, ytrain);
+    Gap(options.MAX_iter+1) = norm(SSlow*CSlow - I_Matrix,'fro');
     % 3 lines for the record use. Should not be in the final version
     TimeList(options.MAX_iter+1) = toc;
-    [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+    [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,AlphaSlow,varEst,freq,var,K);
     MSEList(options.MAX_iter+1) = mean((pMean-ytest(1:nTest)).^2);
     % Max It. Reached. Module Return Alpha
     disp('Exceed Max Iterations.')
-    AlphaReturn = Alpha_k;
+    AlphaReturn = AlphaSlow;
 end
 
 
