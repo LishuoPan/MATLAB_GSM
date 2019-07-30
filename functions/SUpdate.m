@@ -61,7 +61,7 @@ function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
             elseif strcmp(StepMethod, 'Diminish')
                 % Diminishing step size. This is not valid for ADMM algorithm
                 c = 1;
-                step = (1e-10)/ii*c;
+                step = (1e-10)/iii*c;
             end
 
             % update Theta
