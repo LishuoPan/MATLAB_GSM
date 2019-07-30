@@ -43,12 +43,34 @@ SSubIterPrune7 = SSubIterList;
 GapPrune7 = Gap;
 
 
-% Performance plot
+%% Performance plot
 figure;
+LineW = 1;
+% Plot Training MSE
+subplot(2,1,1)
 hold on;
-plot(TrainMSEPrune0, 'DisplayName', 'No Pruning');
-plot(TrainMSEPrune3, 'DisplayName', '48.8% Pruning');
-plot(TrainMSEPrune5, 'DisplayName', '67.2% Pruning');
-plot(TrainMSEPrune7, 'DisplayName', '79.0% Pruning');
+plot(TrainMSEPrune0, 'DisplayName', 'No Pruning','LineWidth', LineW);
+plot(TrainMSEPrune3, 'DisplayName', '48.8% Pruning','LineWidth', LineW);
+plot(TrainMSEPrune5, 'DisplayName', '67.2% Pruning','LineWidth', LineW);
+plot(TrainMSEPrune7, 'DisplayName', '79.0% Pruning','LineWidth', LineW);
 legend('show');
+xlim([0,length(TrainMSEPrune0)]);
+ylim([1000,7000]);
+xlabel('Iterations');
+ylabel('Training MSE');
+hold off;
+
+%% Plot Test MSE
+subplot(2,1,2)
+hold on;
+plot(TestMSEPrune0, 'DisplayName', 'No Pruning','LineWidth', LineW);
+plot(TestMSEPrune3, 'DisplayName', '48.8% Pruning','LineWidth', LineW);
+plot(TestMSEPrune5, 'DisplayName', '67.2% Pruning','LineWidth', LineW);
+plot(TestMSEPrune7, 'DisplayName', '79.0% Pruning','LineWidth', LineW);
+legend('show');
+% xlim([0,length(TrainMSEPrune0)]);
+% ylim([1000,7000]);
+xlabel('Iterations');
+ylabel('Testing MSE');
+hold off;
 
