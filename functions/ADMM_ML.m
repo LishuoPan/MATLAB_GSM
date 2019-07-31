@@ -129,7 +129,7 @@ tic
         % report every 100 iterations.
         if rem(i,10)==0
             % prediction & report the MSE
-            [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
+            [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,AlphaSlow,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
 
             OriObjPrint = ML_obj(CSlow, ytrain);
