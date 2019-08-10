@@ -43,11 +43,11 @@ function [SReturn, SSubIter] = SUpdate(ytrain, S, L, C, rho, MaxIL)
                 % Compute the NAG gradient. Note that the d is descent
                 % direction. g = -d.
                 ThetaNAGNext = Theta + step*DecayRate*d;
-                NAGGrad = DecayRate*NAGGrad + S_gradient(ytrain, ThetaNAGNext, L, C, rho);
+                NAGGrad = DecayRate*NAGGrad - S_gradient(ytrain, ThetaNAGNext, L, C, rho);
                 % Reform the gradient into a vector, and normalize it. d_vec is
                 % descent direction (nagetive of gradient)
                 NAGGrad_vec = NAGGrad(:);
-                d_vec = -(NAGGrad_vec/norm(NAGGrad_vec));
+                d_vec = NAGGrad_vec/norm(NAGGrad_vec);
             end  
 
 
