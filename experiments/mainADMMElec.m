@@ -8,7 +8,7 @@ addpath('../data')
 addpath ~/mosek/8/toolbox/r2014a
 
 % Read in data & some general setup
-file_name = 'passengerdata';
+file_name = 'electricitydata';
 disp(['Simulation on ',file_name]);
 [xtrain, ytrain, xtest, ytest] = load_data(file_name);
 nTrain = length(xtrain);
@@ -51,7 +51,7 @@ end
 % MAX_iter: numbers of total outer iterations.
 % options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 3000, 'nv', varEst, ...
 %                       'iniAlpha', iniAlpha_Pdg);
-options_ADMM = struct('rho', 1000, 'rho_dual', 300, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 1000, 'nv', varEst, ...
+options_ADMM = struct('rho', 100, 'rho_dual', 50, 'MaxIL', 1000, 'mu', 1e-6, 'MAX_iter', 1000, 'nv', varEst, ...
                       'iniAlpha', ones(Q,1));
 % Pre-Training
 % Find Winning Tickets
