@@ -16,6 +16,7 @@ tic
     Q = numel(K);
     n = length(ytrain);
     I_Matrix = eye(n);
+    ZerosNbyN = zeros(n);
     % convergence criteria
     AugObjEval = zeros(options.MAX_iter+1,1);
     OriObjEval = zeros(options.MAX_iter+1,1);
@@ -53,11 +54,44 @@ tic
         % S update
         %%%%%%%%%%%%%%%%%%%%
         % gradient descent update
-        [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
-        if SSubIter == options.MaxIL
-            disp('S update reach MaxIL')
-        end
-        SSubIterList(i) = SSubIter;
+%         [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
+%         if SSubIter == options.MaxIL
+%             disp('S update reach MaxIL')
+%         end
+%         SSubIterList(i) = SSubIter;
+        rhoRecip = 1/options.rho;
+        
+        A = C_k*C_k;
+        B = (I_Matrix - rhoRecip * L_k)*C_k - rhoRecip*(ytrain*ytrain');
+        C = rhoRecip * I_Matrix;
+        
+        invA = pinv(A);
+        
+        E = invA*B;
+        F = rhoRecip*invA;
+        
+        H = [E,-F;I_Matrix,ZerosNbyN];
+        H = (H+H')/2;
+%         H = [E,ZerosNbyN;I_Matrix,ZerosNbyN];
+        
+        [V,D] = eig(H);
+        [D,IndexEig] = sort(real(diag(D)), 'descend');
+        V = V(:, IndexEig);
+        
+        G = V(1:n, 1:n);
+        U = V(n+1:2*n, 1:n);
+        
+        S_k = real(G/U);
+        
+%         SSym = (SRow+SRow')/2;
+%         [VSym,DSym] = eig(SSym);
+%         
+%         DSym(DSym<0) = 0;
+%         S_k = VSym*DSym*VSym';
+        
+        
+        
+        
         % display S matrix Non-PD info
         [~,PD] = chol(S_k);
         if PD ~= 0
@@ -79,14 +113,14 @@ tic
         end
         diff_alpha = norm(LastAlpha-Alpha_k);
         % stopping criteria
-        if diff_alpha < 0.001
-            disp('Optimal Alpha Found.');
-            AlphaReturn = Alpha_k;
-            AugObjEval(i+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);AugObjEval = AugObjEval(1:i+1);
-            OriObjEval(i+1) = ML_obj(C_k, ytrain);OriObjEval = OriObjEval(1:i+1);
-            Gap(i+1) = norm(S_k*C_k - I_Matrix,'fro');Gap = Gap(1:i+1);
-            return
-        end
+%         if diff_alpha < 0.001
+%             disp('Optimal Alpha Found.');
+%             AlphaReturn = Alpha_k;
+%             AugObjEval(i+1) = AugObj(ytrain, S_k, L_k, C_k, options.rho);AugObjEval = AugObjEval(1:i+1);
+%             OriObjEval(i+1) = ML_obj(C_k, ytrain);OriObjEval = OriObjEval(1:i+1);
+%             Gap(i+1) = norm(S_k*C_k - I_Matrix,'fro');Gap = Gap(1:i+1);
+%             return
+%         end
         
         %%%%%%%%%%%%%%%%%%%%
         % L update
