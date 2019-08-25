@@ -63,15 +63,15 @@ tic
         
         A = C_k*C_k;
         B = (I_Matrix - rhoRecip * L_k)*C_k - rhoRecip*(ytrain*ytrain');
-        C = rhoRecip * I_Matrix;
+%         C = rhoRecip * I_Matrix;
         
         invA = pinv(A);
         
         E = invA*B;
         F = rhoRecip*invA;
         
-        H = [E,-F;I_Matrix,ZerosNbyN];
-        H = (H+H')/2;
+        H = [E,F;I_Matrix,ZerosNbyN];
+%         H = (H+H')/2;
 %         H = [E,ZerosNbyN;I_Matrix,ZerosNbyN];
         
         [V,D] = eig(H);
@@ -82,13 +82,14 @@ tic
         U = V(n+1:2*n, 1:n);
         
         S_k = real(G/U);
-        
+%         SRow = real(G/U);
+%         SRow = (SRow+SRow')/2;
+% 
 %         SSym = (SRow+SRow')/2;
 %         [VSym,DSym] = eig(SSym);
 %         
-%         DSym(DSym<0) = 0;
+%         DSym(DSym<0) = 0.000000001;
 %         S_k = VSym*DSym*VSym';
-        
         
         
         
@@ -132,7 +133,7 @@ tic
         % Print Report
         %%%%%%%%%%%%%%%%%%%%
         % report every 100 iterations.
-        if rem(i,10)==0
+        if rem(i,1)==0
             % prediction & report the MSE
             [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
