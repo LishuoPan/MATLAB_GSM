@@ -17,6 +17,9 @@ tic
     n = length(ytrain);
     I_Matrix = eye(n);
     ZerosNbyN = zeros(n);
+    SwitchPoint = 150;
+    SafeRho = 1000000;
+    SafeRhodual = 1;
     % convergence criteria
     AugObjEval = zeros(options.MAX_iter+1,1);
     OriObjEval = zeros(options.MAX_iter+1,1);
@@ -53,13 +56,19 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % S update
         %%%%%%%%%%%%%%%%%%%%
+        if i <= SwitchPoint
+        
         % gradient descent update
-%         [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
-%         if SSubIter == options.MaxIL
-%             disp('S update reach MaxIL')
-%         end
-%         SSubIterList(i) = SSubIter;
-        rhoRecip = 1/options.rho;
+        [S_k,SSubIter] = SUpdate(ytrain, S_k, L_k, C_k, options.rho, options.MaxIL);
+        if SSubIter == options.MaxIL
+            disp('S update reach MaxIL')
+        end
+        SSubIterList(i) = SSubIter;
+
+        else
+            
+            
+        rhoRecip = 1/SafeRho;
         
         A = C_k*C_k;
         B = (I_Matrix - rhoRecip * L_k)*C_k - rhoRecip*(ytrain*ytrain');
@@ -83,6 +92,7 @@ tic
         
         S_k = real(G/U);
         S_k = (S_k+S_k')/2;
+        end
 %         SRow = real(G/U);
 %         SRow = (SRow+SRow')/2;
 % 
@@ -128,7 +138,11 @@ tic
         % L update
         %%%%%%%%%%%%%%%%%%%%
         % Close form update L. Use a smaller dual coefficient
+        if i<=SwitchPoint
         L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+        else
+        L_k = L_k + SafeRhodual*(S_k*C_k - I_Matrix);
+        end
         
         %%%%%%%%%%%%%%%%%%%%
         % Print Report
