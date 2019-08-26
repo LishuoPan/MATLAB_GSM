@@ -82,6 +82,7 @@ tic
         U = V(n+1:2*n, 1:n);
         
         S_k = real(G/U);
+        S_k = (S_k+S_k')/2;
 %         SRow = real(G/U);
 %         SRow = (SRow+SRow')/2;
 % 
@@ -133,7 +134,7 @@ tic
         % Print Report
         %%%%%%%%%%%%%%%%%%%%
         % report every 100 iterations.
-        if rem(i,1)==0
+        if rem(i,10)==0
             % prediction & report the MSE
             [pMean, ~] = prediction(xtrain,xtest,ytrain,nTest,Alpha_k,varEst,freq,var,K);
             MSE = mean((pMean-ytest(1:nTest)).^2);
