@@ -17,8 +17,8 @@ tic
     n = length(ytrain);
     I_Matrix = eye(n);
     ZerosNbyN = zeros(n);
-    SwitchPoint = 300;
-    SafeRho = 1000000;
+    SwitchPoint = 0;
+    SafeRho = 5000;
     SafeRhodual = 1;
     % convergence criteria
     AugObjEval = zeros(options.MAX_iter+1,1);
@@ -114,12 +114,17 @@ tic
         % alpha update
         %%%%%%%%%%%%%%%%%%%%
         LastAlpha = Alpha_k;
+        if i <= SwitchPoint
+            alphaRho = options.rho;
+        else
+            alphaRho = SafeRho;
+        end
         for ii=1:Q
             % pre-calculate O(n^3)
             ske = S_k*K{ii};
             sc = S_k*C_k;
             OldAlphaii = Alpha_k(ii);
-            Alpha_k(ii) = max(0,alpha_update(ske, sc, options.rho, L_k, OldAlphaii));
+            Alpha_k(ii) = max(0,alpha_update(ske, sc, alphaRho, L_k, OldAlphaii));
             % update new C_k
             C_k = C_k - OldAlphaii*K{ii} + Alpha_k(ii)*K{ii};
         end
@@ -139,9 +144,9 @@ tic
         %%%%%%%%%%%%%%%%%%%%
         % Close form update L. Use a smaller dual coefficient
         if i<=SwitchPoint
-        L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
+            L_k = L_k + options.rho_dual*(S_k*C_k - I_Matrix);
         else
-        L_k = L_k + SafeRhodual*(S_k*C_k - I_Matrix);
+            L_k = L_k + SafeRhodual*(S_k*C_k - I_Matrix);
         end
         
         %%%%%%%%%%%%%%%%%%%%
@@ -157,7 +162,11 @@ tic
 %             plot_save(xtrain,ytrain,xtest,ytest,nTest,pMean,pVar,figName)
 
             OriObjPrint = ML_obj(C_k, ytrain);
-            AugObjPrint = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+            if i<= SwitchPoint
+                AugObjPrint = AugObj(ytrain, S_k, L_k, C_k, options.rho);
+            else
+                AugObjPrint = AugObj(ytrain, S_k, L_k, C_k, SafeRho);
+            end
             disp([sprintf('%-4d',i),'   ', ...
                   sprintf('%0.4e',AugObjPrint),'    ', ...
                   sprintf('%0.4e',OriObjPrint),'    ', ...
