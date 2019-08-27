@@ -17,7 +17,7 @@ tic
     n = length(ytrain);
     I_Matrix = eye(n);
     ZerosNbyN = zeros(n);
-    SwitchPoint = 150;
+    SwitchPoint = 300;
     SafeRho = 1000000;
     SafeRhodual = 1;
     % convergence criteria
